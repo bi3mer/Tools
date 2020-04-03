@@ -1,7 +1,7 @@
 ﻿using UnityEngine.Assertions;
 using System.Collections.Generic;
 
-namespace UnityUtility
+namespace Tools.ID
 {
     public static class StringIDGenerator
     {

@@ -1,4 +1,4 @@
-﻿namespace UnityUtility
+﻿namespace Tools.ID
 {
     /// <summary>
     /// Simple class to generate integers from 0 to max int.

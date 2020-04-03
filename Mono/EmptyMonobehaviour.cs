@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace UnityUtility.Mono
+namespace Tools.Mono
 {
     public class EmptyMonobehaviour : MonoBehaviour
     {

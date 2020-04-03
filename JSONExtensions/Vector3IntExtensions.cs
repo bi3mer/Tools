@@ -2,7 +2,7 @@
 using UnityEngine;
 using LightJson;
 
-namespace UnityUtility.JSONExtensions
+namespace Tools.JSONExtensions
 {
     public static class Vector3IntExtensions
     {
