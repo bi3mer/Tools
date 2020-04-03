@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace UnityUtility
+namespace UnityUtility.Mono
 {
     public class DestroyOnDestroy : MonoBehaviour
     {

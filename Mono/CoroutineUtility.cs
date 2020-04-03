@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
 
-namespace UnityUtility
+namespace UnityUtility.Mono
 {
     public static class CoroutineUtility
     {
