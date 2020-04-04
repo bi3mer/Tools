@@ -44,5 +44,13 @@ namespace Tools.DataStructures
         {
             return queue.ToArray();
         }
+
+        public CircularQueue<T> Copy()
+        {
+            CircularQueue<T> copy = new CircularQueue<T>(Capacity);
+            copy.AddRange(queue);
+
+            return copy;
+        }
     }
 }

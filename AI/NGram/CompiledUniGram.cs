@@ -34,24 +34,36 @@ namespace Tools.AI.NGram
         /// <returns></returns>
         public string Get(string[] inData)
         {
-            keys.Shuffle();
+            return Math.WeightedGuess(grammar, keys);
+        }
 
-            float minVal = UtilityRandom.RandFloat(0f, 1f);
-            float total = 0;
-            string outVal = keys[keys.Count - 1];
+        public string[] GetGuesses(string[] inData)
+        {
+            Dictionary<string, float> tempGrammar = new Dictionary<string, float>(grammar);
+            List<string> tempKeys = new List<string>(keys);
+            string[] guesses = new string[keys.Count];
+            int index = 0;
 
-            foreach(string key in keys)
+            while (tempKeys.Count != 0)
             {
-                total += grammar[key];
+                // get guess
+                string guess = Math.WeightedGuess(tempGrammar);
+                guesses[index] = guess;
+                ++index;
 
-                if(total >= minVal)
+                // remove guess from the keys and temporary dictionary. Then update the 
+                // probabilities in the dictionary so they again add back up to 0.
+                float probabilityModifier = 1f / (1f - tempGrammar[guess]);
+                tempGrammar.Remove(guess);
+                tempKeys.Remove(guess);
+
+                foreach (string key in tempKeys)
                 {
-                    outVal = key;
-                    break;
+                    tempGrammar[key] *= probabilityModifier;
                 }
             }
 
-            return outVal;
+            return guesses;
         }
 
         public int GetN()
