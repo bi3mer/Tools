@@ -24,7 +24,6 @@ namespace Tools.AI.NGram
 
         public string[] GetGuesses(string[] inData)
         {
-            UnityEngine.Debug.Log(string.Join(",", inData));
             return grammar[ConvertToKey(inData)].GetGuesses(null);
         }
 
