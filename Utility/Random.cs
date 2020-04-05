@@ -13,7 +13,7 @@ namespace Tools.Utility
         /// <param name="min">min is inclusive</param>
         /// <param name="max">max is exclosuive</param>
         /// <returns></returns>
-        public static float RandInt(int min, int max)
+        public static int RandInt(int min, int max)
         {
             return Random.Next(min, max);
         }

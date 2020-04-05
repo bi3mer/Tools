@@ -2,7 +2,7 @@
 using UnityEngine;
 using LightJson;
 
-namespace Tools.JSONExtensions
+namespace Tools.Extensions.Json
 {
     public static class QuaternionExtensions
     {
