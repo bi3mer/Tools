@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System;
 
 using UnityEngine.Assertions;
 
@@ -32,7 +31,7 @@ namespace Tools.AI.NGram
             Assert.IsTrue(percentRemembered >= 0);
             Assert.IsTrue(percentRemembered <= 1);
 
-            foreach (string key in grammar.Keys)
+            foreach (string key in new List<string>(grammar.Keys))
             {
                 grammar[key] *= percentRemembered;
             }
