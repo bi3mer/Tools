@@ -39,6 +39,22 @@ namespace Tools.AI.NGram
             }
         }
 
+        public void AddGrammar(IGram gram)
+        {
+            Assert.IsTrue(gram.GetN() == N);
+            NGram ngram = (NGram)gram;
+
+            foreach (string key in ngram.grammar.Keys)
+            {
+                if (grammar.ContainsKey(key) == false)
+                {
+                    grammar[key] = new UniGram();
+                }
+
+                grammar[key].AddGrammar(ngram.grammar[key]);
+            }
+        }
+
         public ICompiledGram Compile()
         {
             return new CompiledNGram(grammar, N);

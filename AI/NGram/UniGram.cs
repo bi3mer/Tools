@@ -37,6 +37,24 @@ namespace Tools.AI.NGram
             }
         }
 
+        public void AddGrammar(IGram gram)
+        {
+            Assert.IsTrue(gram.GetN() == 1);
+            UniGram unigram = (UniGram)gram;
+
+            foreach (KeyValuePair<string, float> keyValue in unigram.grammar)
+            {
+                if (grammar.ContainsKey(keyValue.Key) == false)
+                {
+                    grammar[keyValue.Key] = keyValue.Value;
+                }
+                else
+                {
+                    grammar[keyValue.Key] += keyValue.Value;
+                }
+            }
+        }
+
         public ICompiledGram Compile()
         {
             return new CompiledUniGram(grammar);

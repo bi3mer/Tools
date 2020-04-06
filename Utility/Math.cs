@@ -19,6 +19,21 @@ namespace Tools.Utility
             return a > b ? a : b;
         }
 
+        public static int Min(int a, int b)
+        {
+            return a < b ? a : b;
+        }
+
+        public static float Min(float a, float b)
+        {
+            return a < b ? a : b;
+        }
+
+        public static double Min(double a, double b)
+        {
+            return a < b ? a : b;
+        }
+
         /// <summary>
         /// Values in dictionary must add up to 1 for this function to work as expected.
         /// </summary>
