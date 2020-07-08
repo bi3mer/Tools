@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-
 using UnityEngine.Assertions;
 
 namespace Tools.AI.NGram
@@ -23,6 +22,24 @@ namespace Tools.AI.NGram
             else
             {
                 grammar[outData] += 1;
+            }
+        }
+
+        /// <summary>
+        /// This is used by CompiledHierarchicalNGram to specifiy specific
+        /// weights.
+        /// </summary>
+        /// <param name="outData"></param>
+        /// <param name="weight"></param>
+        public void AddData(string outData, float weight)
+        {
+            if (grammar.ContainsKey(outData) == false)
+            {
+                grammar.Add(outData, weight);
+            }
+            else
+            {
+                grammar[outData] += weight;
             }
         }
 

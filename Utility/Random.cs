@@ -5,7 +5,8 @@ namespace Tools.Utility
 {
     public static class UtilityRandom
     {
-        private static Random Random = new Random();
+        private static readonly Random random = new Random();
+        public static Random Random { get { return random; } }
 
         /// <summary>
         /// Get a arandom number between min andm ax where max is exclosuive
@@ -15,13 +16,13 @@ namespace Tools.Utility
         /// <returns></returns>
         public static int RandInt(int min, int max)
         {
-            return Random.Next(min, max);
+            return random.Next(min, max);
         }
 
         // https://stackoverflow.com/questions/1064901/random-number-between-2-double-numbers
         public static float RandFloat(float min, float max)
         {
-            return (float) (Random.NextDouble() * (max - min)) + min;
+            return (float) (random.NextDouble() * (max - min)) + min;
         }
 
         /// <summary>
@@ -37,11 +38,33 @@ namespace Tools.Utility
             while (n > 1)
             {
                 n--;
-                int k = Random.Next(n + 1);
+                int k = random.Next(n + 1);
                 T value = list[k];
                 list[k] = list[n];
                 list[n] = value;
             }
+        }
+
+        /// <summary>
+        /// Returns a random index that is valid for the list
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list"></param>
+        /// <returns></returns>
+        public static int RandomIndex<T>(this IList<T> list)
+        {
+            return random.Next(list.Count);
+        }
+
+        /// <summary>
+        /// Returns a random value in the list.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list"></param>
+        /// <returns></returns>
+        public static T RandomValue<T>(this IList<T> list)
+        {
+            return list[list.RandomIndex()];
         }
     }
 }

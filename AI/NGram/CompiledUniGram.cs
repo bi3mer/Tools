@@ -5,7 +5,7 @@ namespace Tools.AI.NGram
 {
     public class CompiledUniGram : ICompiledGram
     {
-        private readonly Dictionary<string, float> grammar = 
+        private readonly Dictionary<string, float> grammar =
             new Dictionary<string, float>();
 
         private readonly List<string> keys;
@@ -24,6 +24,19 @@ namespace Tools.AI.NGram
             }
 
             keys = new List<string>(grammar.Keys);
+        }
+
+        private CompiledUniGram() { }
+
+        public ICompiledGram Clone()
+        {
+            CompiledUniGram clone = new CompiledUniGram();
+            foreach (KeyValuePair<string, float> kvp in grammar)
+            {
+                clone.grammar[kvp.Key] = kvp.Value;
+            }
+
+            return clone;
         }
 
         /// <summary>
@@ -71,9 +84,14 @@ namespace Tools.AI.NGram
             return 1;
         }
 
+        public Dictionary<string, float> GetValues(string[] inData)
+        {
+            return new Dictionary<string, float>(grammar);
+        }
+
         public bool HasNextStep(string[] inData)
         {
-            return true;
+            return grammar.Keys.Count > 0;
         }
     }
 }
