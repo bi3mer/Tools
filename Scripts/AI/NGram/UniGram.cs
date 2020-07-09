@@ -5,7 +5,12 @@ namespace Tools.AI.NGram
 {
     public class UniGram : IGram
     {
-        private Dictionary<string, float> grammar = new Dictionary<string, float>();
+        public Dictionary<string, float> Grammar { get; private set; }
+
+        public UniGram()
+        {
+            Grammar = new Dictionary<string, float>();
+        }
 
         /// <summary>
         /// InData is not used for this. There is likely a better way to do this
@@ -15,13 +20,13 @@ namespace Tools.AI.NGram
         /// <param name="outData"></param>
         public void AddData(string[] inData, string outData)
         {
-            if (grammar.ContainsKey(outData) == false)
+            if (Grammar.ContainsKey(outData) == false)
             {
-                grammar.Add(outData, 1);
+                Grammar.Add(outData, 1);
             }
             else
             {
-                grammar[outData] += 1;
+                Grammar[outData] += 1;
             }
         }
 
@@ -33,13 +38,13 @@ namespace Tools.AI.NGram
         /// <param name="weight"></param>
         public void AddData(string outData, float weight)
         {
-            if (grammar.ContainsKey(outData) == false)
+            if (Grammar.ContainsKey(outData) == false)
             {
-                grammar.Add(outData, weight);
+                Grammar.Add(outData, weight);
             }
             else
             {
-                grammar[outData] += weight;
+                Grammar[outData] += weight;
             }
         }
 
@@ -48,9 +53,9 @@ namespace Tools.AI.NGram
             Assert.IsTrue(percentRemembered >= 0);
             Assert.IsTrue(percentRemembered <= 1);
 
-            foreach (string key in new List<string>(grammar.Keys))
+            foreach (string key in new List<string>(Grammar.Keys))
             {
-                grammar[key] *= percentRemembered;
+                Grammar[key] *= percentRemembered;
             }
         }
 
@@ -59,22 +64,22 @@ namespace Tools.AI.NGram
             Assert.IsTrue(gram.GetN() == 1);
             UniGram unigram = (UniGram)gram;
 
-            foreach (KeyValuePair<string, float> keyValue in unigram.grammar)
+            foreach (KeyValuePair<string, float> keyValue in unigram.Grammar)
             {
-                if (grammar.ContainsKey(keyValue.Key) == false)
+                if (Grammar.ContainsKey(keyValue.Key) == false)
                 {
-                    grammar[keyValue.Key] = keyValue.Value;
+                    Grammar[keyValue.Key] = keyValue.Value;
                 }
                 else
                 {
-                    grammar[keyValue.Key] += keyValue.Value;
+                    Grammar[keyValue.Key] += keyValue.Value;
                 }
             }
         }
 
         public ICompiledGram Compile()
         {
-            return new CompiledUniGram(grammar);
+            return new CompiledUniGram(Grammar);
         }
 
         public int GetN()

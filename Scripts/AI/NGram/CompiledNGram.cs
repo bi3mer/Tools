@@ -54,7 +54,7 @@ namespace Tools.AI.NGram
         }
 
         public Dictionary<string, float> GetValues(string[] inData)
-        {
+        {   
             return grammar[ConvertToKey(inData)].GetValues(null);
         }
 

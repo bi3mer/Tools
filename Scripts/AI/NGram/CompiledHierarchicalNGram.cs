@@ -22,7 +22,7 @@ namespace Tools.AI.NGram
             float weightSum = 0f;
             float currentWeight = 1f;
 
-            for (int grammarSize = hierarchicalGram.N; grammarSize >= 0; --grammarSize)
+            for (int grammarSize = hierarchicalGram.N - 1; grammarSize >= 0; --grammarSize)
             {
                 compiledGrammars[grammarSize] = hierarchicalGram.Grammars[grammarSize].Compile();
                 
@@ -101,14 +101,14 @@ namespace Tools.AI.NGram
         {
             UniGram grammar = new UniGram();
             int length = inData.Length;
-            Assert.IsTrue(length == n);
+            Assert.IsTrue(length == n - 1);
 
             foreach (ICompiledGram gram in compiledGrammars)
             {
                 Dictionary<string, float> grammarValues;
                 int n = gram.GetN() - 1;
 
-                if (n == 0)
+                if (n == -1)
                 {
                     // unigram special case
                     grammarValues = gram.GetValues(null);
@@ -122,7 +122,7 @@ namespace Tools.AI.NGram
 
                 foreach (KeyValuePair<string, float> kvp in grammarValues)
                 {
-                    grammar.AddData(kvp.Key, kvp.Value * weights[n - 1]);
+                    grammar.AddData(kvp.Key, kvp.Value * weights[n + 1]);
                 }
             }
 

@@ -1,5 +1,6 @@
 ﻿using UnityEngine.Assertions;
 using System.Linq;
+using System;
 
 namespace Tools.AI.NGram
 {
@@ -8,14 +9,14 @@ namespace Tools.AI.NGram
         public int N { get; private set; }
         public IGram[] Grammars { get; private set; }
 
-        public HierarchicalNGram(int n) 
+        public HierarchicalNGram(int n)
         {
             Assert.IsTrue(n >= 1);
             N = n;
-            
+
             Grammars = new IGram[n];
             Grammars[0] = new UniGram();
-            for (int grammarSize = 1; grammarSize <= n; ++grammarSize) 
+            for (int grammarSize = 1; grammarSize < n; ++grammarSize)
             {
                 Grammars[grammarSize] = new NGram(grammarSize);
             }
@@ -26,10 +27,12 @@ namespace Tools.AI.NGram
             Assert.IsTrue(inData.Length == N - 1);
 
             Grammars[0].AddData(null, outData);
-            for (int grammarSize = 1; 1 <= N; ++grammarSize)
+            for (int grammarSize = 1; grammarSize < N - 1; ++grammarSize)
             {
+                ArraySegment<string> segment = new ArraySegment<string>(inData, N - grammarSize, grammarSize - 1);
+
                 Grammars[grammarSize].AddData(
-                    inData.Reverse().Take(grammarSize).Reverse().ToArray(), 
+                    segment.ToArray(),
                     outData);
             }
         }
@@ -37,25 +40,25 @@ namespace Tools.AI.NGram
         public void AddGrammar(IGram gram)
         {
             HierarchicalNGram grammar = gram as HierarchicalNGram;
-            if (grammar == null)
+            if (grammar != null)
             {
-                int n = gram.GetN();
-                Assert.IsTrue(n <= N);
-                Grammars[n].AddGrammar(gram);
+                Assert.AreEqual(N, grammar.N);
+                for (int grammarSize = 0; grammarSize < N; ++grammarSize)
+                {
+                    Grammars[grammarSize].AddGrammar(grammar.Grammars[grammarSize]);
+                }
             }
             else
             {
-                Assert.AreEqual(N, grammar.N);
-                for (int grammarSize = 0; grammarSize <= N; ++grammarSize)
-                { 
-                    Grammars[grammarSize].AddGrammar(grammar.Grammars[grammarSize]);
-                }
+                int n = gram.GetN();
+                Assert.IsTrue(n <= N);
+                Grammars[n - 1].AddGrammar(gram);
             }
         }
 
         public ICompiledGram Compile()
         {
-            throw new System.NotImplementedException();
+            return new CompiledHierarchicalNGram(this);
         }
 
         public int GetN()
