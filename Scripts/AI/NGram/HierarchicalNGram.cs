@@ -11,7 +11,7 @@ namespace Tools.AI.NGram
 
         public HierarchicalNGram(int n)
         {
-            Assert.IsTrue(n >= 1);
+            Assert.IsTrue(n > 1);
             N = n;
 
             Grammars = new IGram[n];

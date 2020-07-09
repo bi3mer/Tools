@@ -5,12 +5,13 @@ namespace Tools.AI.NGram
 {
     public class NGram : IGram
     {
-        private readonly Dictionary<string, UniGram> grammar = new Dictionary<string, UniGram>();
-
+        public Dictionary<string, UniGram> Grammar { get; private set; }
         public int N { get; private set; }
 
         public NGram(int n)
         {
+            Assert.IsTrue(n > 1);
+            Grammar = new Dictionary<string, UniGram>();
             N = n;
         }
 
@@ -19,23 +20,23 @@ namespace Tools.AI.NGram
             Assert.IsTrue(inData.Length == N - 1);
             string key = string.Join(",", inData);
 
-            if (grammar.ContainsKey(key))
+            if (Grammar.ContainsKey(key))
             {
-                grammar[key].AddData(null, outData);
+                Grammar[key].AddData(null, outData);
             }
             else
             {
                 UniGram uniGram = new UniGram();
                 uniGram.AddData(null, outData);
-                grammar[key] = uniGram;
+                Grammar[key] = uniGram;
             }
         }
 
         public void UpdateMemory(float percentRemembered)
         {
-            foreach (string key in grammar.Keys)
+            foreach (string key in Grammar.Keys)
             {
-                grammar[key].UpdateMemory(percentRemembered);
+                Grammar[key].UpdateMemory(percentRemembered);
             }
         }
 
@@ -44,20 +45,20 @@ namespace Tools.AI.NGram
             Assert.IsTrue(gram.GetN() == N);
             NGram ngram = (NGram)gram;
 
-            foreach (string key in ngram.grammar.Keys)
+            foreach (string key in ngram.Grammar.Keys)
             {
-                if (grammar.ContainsKey(key) == false)
+                if (Grammar.ContainsKey(key) == false)
                 {
-                    grammar[key] = new UniGram();
+                    Grammar[key] = new UniGram();
                 }
 
-                grammar[key].AddGrammar(ngram.grammar[key]);
+                Grammar[key].AddGrammar(ngram.Grammar[key]);
             }
         }
 
         public ICompiledGram Compile()
         {
-            return new CompiledNGram(grammar, N);
+            return new CompiledNGram(Grammar, N);
         }
 
         public int GetN()

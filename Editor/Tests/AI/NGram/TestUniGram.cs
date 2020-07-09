@@ -2,7 +2,7 @@
 using Tools.AI.NGram;
 using UnityEngine;
 
-namespace Editor.Tests.Tools.AI.NGram
+namespace Editor.Tests.Tools.AI.NGramTests
 { 
     /**
      * NOTES:
