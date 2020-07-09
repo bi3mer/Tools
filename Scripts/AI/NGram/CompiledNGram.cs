@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using UnityEngine.Assertions;
 
 namespace Tools.AI.NGram
 {
@@ -10,6 +11,7 @@ namespace Tools.AI.NGram
 
         public CompiledNGram(Dictionary<string, UniGram> grammar, int n)
         {
+            Assert.IsTrue(n > 1);
             this.n = n;
             foreach (KeyValuePair<string, UniGram> pair in grammar)
             {
@@ -19,6 +21,7 @@ namespace Tools.AI.NGram
 
         private CompiledNGram(int n) 
         {
+            Assert.IsTrue(n > 1);
             this.n = n;
         }
 
@@ -35,12 +38,24 @@ namespace Tools.AI.NGram
 
         public string Get(string[] inData)
         {
-            return grammar[ConvertToKey(inData)].Get(null);
+            Assert.IsNotNull(inData);
+            Assert.AreEqual(n - 1, inData.Length);
+
+            string key = ConvertToKey(inData);
+            Assert.IsTrue(grammar.ContainsKey(key));
+
+            return grammar[key].Get(null);
         }
 
         public string[] GetGuesses(string[] inData)
         {
-            return grammar[ConvertToKey(inData)].GetGuesses(null);
+            Assert.IsNotNull(inData);
+            Assert.AreEqual(n - 1, inData.Length);
+
+            string key = ConvertToKey(inData);
+            Assert.IsTrue(grammar.ContainsKey(key));
+
+            return grammar[key].GetGuesses(null);
         }
 
         public int GetN()
@@ -50,12 +65,21 @@ namespace Tools.AI.NGram
 
         public bool HasNextStep(string[] inData)
         {
+            Assert.IsNotNull(inData);
+            Assert.AreEqual(n - 1, inData.Length);
+
             return grammar.ContainsKey(ConvertToKey(inData));
         }
 
         public Dictionary<string, float> GetValues(string[] inData)
-        {   
-            return grammar[ConvertToKey(inData)].GetValues(null);
+        {
+            Assert.IsNotNull(inData);
+            Assert.AreEqual(n - 1, inData.Length);
+
+            string key = ConvertToKey(inData);
+            Assert.IsTrue(grammar.ContainsKey(key));
+
+            return grammar[key].GetValues(null);
         }
 
         private string ConvertToKey(string[] inData)
