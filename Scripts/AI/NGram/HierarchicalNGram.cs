@@ -1,6 +1,7 @@
 ﻿using UnityEngine.Assertions;
 using System.Linq;
 using System;
+using System.Diagnostics;
 
 namespace Tools.AI.NGram
 {
@@ -16,9 +17,9 @@ namespace Tools.AI.NGram
 
             Grammars = new IGram[n];
             Grammars[0] = new UniGram();
-            for (int grammarSize = 1; grammarSize < n; ++grammarSize)
+            for (int grammarSize = 2; grammarSize <= n; ++grammarSize)
             {
-                Grammars[grammarSize] = new NGram(grammarSize);
+                Grammars[grammarSize - 1] = new NGram(grammarSize);
             }
         }
 
@@ -27,10 +28,9 @@ namespace Tools.AI.NGram
             Assert.IsTrue(inData.Length == N - 1);
 
             Grammars[0].AddData(null, outData);
-            for (int grammarSize = 1; grammarSize < N - 1; ++grammarSize)
+            for (int grammarSize = 1; grammarSize < Grammars.Length; ++grammarSize)
             {
-                ArraySegment<string> segment = new ArraySegment<string>(inData, N - grammarSize, grammarSize - 1);
-
+                ArraySegment<string> segment = new ArraySegment<string>(inData, N - grammarSize - 1, grammarSize);
                 Grammars[grammarSize].AddData(
                     segment.ToArray(),
                     outData);
