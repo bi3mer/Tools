@@ -7,16 +7,16 @@ namespace Tools.AI.NGram
 {
     public class CompiledHierarchicalNGram : ICompiledGram
     {
-        private readonly ICompiledGram[] compiledGrammars;
-        private readonly float[] weights;
+        public ICompiledGram[] CompiledGrammars { get; private set; }
+        public float[] Weights { get; private set; }
         private readonly int n;
 
         private const float weightMultiplier = 0.6f;
 
         public CompiledHierarchicalNGram(HierarchicalNGram hierarchicalGram)
         {
-            compiledGrammars = new ICompiledGram[hierarchicalGram.N];
-            weights = new float[hierarchicalGram.N + 1];
+            CompiledGrammars = new ICompiledGram[hierarchicalGram.N];
+            Weights = new float[hierarchicalGram.N + 1];
             n = hierarchicalGram.N;
 
             float weightSum = 0f;
@@ -24,34 +24,33 @@ namespace Tools.AI.NGram
 
             for (int grammarSize = hierarchicalGram.N - 1; grammarSize >= 0; --grammarSize)
             {
-                compiledGrammars[grammarSize] = hierarchicalGram.Grammars[grammarSize].Compile();
+                CompiledGrammars[grammarSize] = hierarchicalGram.Grammars[grammarSize].Compile();
                 
                 currentWeight *= weightMultiplier;
                 weightSum += currentWeight;
-                weights[grammarSize] = currentWeight;
+                Weights[grammarSize] = currentWeight;
             }
 
-            weights[0] += 1 - weightSum;
-            UnityEngine.Debug.Log(weightSum + (1 - weightSum));
+            Weights[0] += 1 - weightSum;
         }
 
         private CompiledHierarchicalNGram(float[] weights, ICompiledGram[] compiledGrammars) 
         {
-            this.compiledGrammars = compiledGrammars;
-            this.weights = weights;
+            this.CompiledGrammars = compiledGrammars;
+            this.Weights = weights;
             n = compiledGrammars.Length;
         }
 
         public ICompiledGram Clone()
         {
-            int length = this.compiledGrammars.Length;
+            int length = CompiledGrammars.Length;
             ICompiledGram[] compiledGrammars = new ICompiledGram[length];
             float[] weights = new float[length];
 
             for (int i = 0; i < length; ++i)
             {
-                compiledGrammars[i] = this.compiledGrammars[i].Clone();
-                weights[i] = this.weights[i];
+                compiledGrammars[i] = CompiledGrammars[i].Clone();
+                weights[i] = Weights[i];
             }
 
             return new CompiledHierarchicalNGram(weights, compiledGrammars);
@@ -103,7 +102,7 @@ namespace Tools.AI.NGram
             int length = inData.Length;
             Assert.IsTrue(length == n - 1);
 
-            foreach (ICompiledGram gram in compiledGrammars)
+            foreach (ICompiledGram gram in CompiledGrammars)
             {
                 Dictionary<string, float> grammarValues;
                 int n = gram.GetN() - 1;
@@ -122,7 +121,7 @@ namespace Tools.AI.NGram
 
                 foreach (KeyValuePair<string, float> kvp in grammarValues)
                 {
-                    grammar.AddData(kvp.Key, kvp.Value * weights[n + 1]);
+                    grammar.AddData(kvp.Key, kvp.Value * Weights[n + 1]);
                 }
             }
 
