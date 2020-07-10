@@ -2,6 +2,7 @@
 using UnityEngine.Assertions;
 using System.Linq;
 using System;
+using System.Diagnostics;
 
 namespace Tools.AI.NGram
 {
@@ -10,6 +11,9 @@ namespace Tools.AI.NGram
         public ICompiledGram[] CompiledGrammars { get; private set; }
         public float[] Weights { get; private set; }
         private readonly int n;
+
+        private string[] cachedInData;
+        private UniGram cachedUniGram;
 
         private const float weightMultiplier = 0.6f;
 
@@ -36,8 +40,8 @@ namespace Tools.AI.NGram
 
         private CompiledHierarchicalNGram(float[] weights, ICompiledGram[] compiledGrammars) 
         {
-            this.CompiledGrammars = compiledGrammars;
-            this.Weights = weights;
+            CompiledGrammars = compiledGrammars;
+            Weights = weights;
             n = compiledGrammars.Length;
         }
 
@@ -98,13 +102,18 @@ namespace Tools.AI.NGram
         /// <returns></returns>
         private UniGram GetUniGram(string[] inData)
         {
+            if (cachedInData == inData)
+            {
+                return cachedUniGram;
+            }
+
             UniGram grammar = new UniGram();
             int length = inData.Length;
             Assert.IsTrue(length == n - 1);
 
             foreach (ICompiledGram gram in CompiledGrammars)
             {
-                Dictionary<string, float> grammarValues;
+                Dictionary<string, float> grammarValues = null;
                 int n = gram.GetN() - 1;
 
                 if (n == -1)
@@ -116,14 +125,24 @@ namespace Tools.AI.NGram
                 {
                     // n-gram generic case
                     ArraySegment<string> segment = new ArraySegment<string>(inData, length - n, n);
-                    grammarValues = gram.GetValues(segment.ToArray());
+                    string[] input = segment.ToArray();
+                    if (gram.HasNextStep(input))
+                    { 
+                        grammarValues = gram.GetValues(segment.ToArray());
+                    }
                 }
 
-                foreach (KeyValuePair<string, float> kvp in grammarValues)
-                {
-                    grammar.AddData(kvp.Key, kvp.Value * Weights[n + 1]);
+                if (grammarValues != null)
+                { 
+                    foreach (KeyValuePair<string, float> kvp in grammarValues)
+                    {
+                        grammar.AddData(kvp.Key, kvp.Value * Weights[n + 1]);
+                    }
                 }
             }
+
+            cachedUniGram = grammar;
+            cachedInData = inData;
 
             return grammar;
         }

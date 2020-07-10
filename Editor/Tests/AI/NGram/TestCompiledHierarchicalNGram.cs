@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
 using NUnit.Framework.Internal;
 using System.Collections.Generic;
+using System.Linq;
 using Tools.AI.NGram;
 using UnityEngine;
 
@@ -104,28 +105,101 @@ namespace Editor.Tests.Tools.AI.NGramTests
                 new string[] { "e", "h" });
         }
 
+        private bool FoundValue(ICompiledGram compiledGram, string expected, string[] input, int iterations)
+        {
+            bool found = false;
+            for (int i = 0; i < iterations; ++i)
+            {
+                if (compiledGram.Get(input) == expected)
+                {
+                    Debug.Log($"{i} => {expected}");
+                    found = true;
+                    break;
+                }
+            }
+
+            return found;
+        }
+
         [Test]
         public void TestGet()
         {
+            HierarchicalNGram gram = new HierarchicalNGram(3);
+            gram.AddData(new string[] { "b", "a" }, "c");
+            gram.AddData(new string[] { "b", "c" }, "c");
+            gram.AddData(new string[] { "b", "a" }, "a");
+            gram.AddData(new string[] { "a", "a" }, "d");
 
+            ICompiledGram compiledGram = gram.Compile();
+
+            Assert.IsTrue(FoundValue(compiledGram, "c", new string[] { "b", "a" }, 500));
+            Assert.IsTrue(FoundValue(compiledGram, "a", new string[] { "b", "a" }, 500));
+            Assert.IsTrue(FoundValue(compiledGram, "d", new string[] { "b", "a" }, 2000));
+
+            // b,c
+            // a,a
+
+
+            Assert.Throws<UnityEngine.Assertions.AssertionException>(() =>
+            {
+                compiledGram.Get(null);
+            });
+
+            // test too long
+            // test too short
+            // test unseen
         }
 
         [Test]
         public void TestGetGuesses()
         {
+            HierarchicalNGram gram = new HierarchicalNGram(3);
+            gram.AddData(new string[] { "b", "a" }, "c");
+            gram.AddData(new string[] { "b", "c" }, "c");
+            gram.AddData(new string[] { "b", "a" }, "a");
+            gram.AddData(new string[] { "a", "a" }, "d");
 
+            ICompiledGram compiledGram = gram.Compile();
+
+            string[] guesses = compiledGram.GetGuesses(new string[] { "b", "a" });
+            Assert.IsTrue(guesses.Contains("c"));
+            Assert.IsTrue(guesses.Contains("a"));
+            Assert.IsTrue(guesses.Contains("d"));
+
+            guesses = compiledGram.GetGuesses(new string[] { "b", "c" });
+            Assert.IsTrue(guesses.Contains("c"));
+            Assert.IsTrue(guesses.Contains("a"));
+            Assert.IsTrue(guesses.Contains("d"));
+
+            compiledGram.GetGuesses(new string[] { "a", "a" });
+            Assert.IsTrue(guesses.Contains("c"));
+            Assert.IsTrue(guesses.Contains("a"));
+            Assert.IsTrue(guesses.Contains("d"));
         }
 
         [Test]
         public void TestHasNextStep()
         {
+            HierarchicalNGram gram = new HierarchicalNGram(3);
+            Assert.IsFalse(gram.Compile().HasNextStep(new string[] { "a", "b" }));
 
+            gram.AddData(new string[] { "a", "b" }, "c");
+            Assert.IsTrue(gram.Compile().HasNextStep(new string[] { "a", "b" }));
+            Assert.IsTrue(gram.Compile().HasNextStep(new string[] { "a", "c" }));
+
+            gram.AddData(new string[] { "a", "d" }, "c");
+            Assert.IsTrue(gram.Compile().HasNextStep(new string[] { "a", "b" }));
+            Assert.IsTrue(gram.Compile().HasNextStep(new string[] { "a", "d" }));
+            Assert.IsTrue(gram.Compile().HasNextStep(new string[] { "a", "z" }));
         }
 
         [Test]
         public void TestGetN()
         {
-
+            for (int i = 2; i < 100; ++i)
+            {
+                Assert.AreEqual(i, new HierarchicalNGram(i).Compile().GetN());
+            }
         }
 
         [Test]
