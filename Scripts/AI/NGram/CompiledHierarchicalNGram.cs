@@ -20,7 +20,7 @@ namespace Tools.AI.NGram
         public CompiledHierarchicalNGram(HierarchicalNGram hierarchicalGram)
         {
             CompiledGrammars = new ICompiledGram[hierarchicalGram.N];
-            Weights = new float[hierarchicalGram.N + 1];
+            Weights = new float[hierarchicalGram.N];
             n = hierarchicalGram.N;
 
             float weightSum = 0f;
@@ -36,6 +36,11 @@ namespace Tools.AI.NGram
             }
 
             Weights[0] += 1 - weightSum;
+
+            for (int i = 0; i < Weights.Length; ++i)
+            {
+                UnityEngine.Debug.Log($"{i}: {Weights[i]}");
+            }
         }
 
         private CompiledHierarchicalNGram(float[] weights, ICompiledGram[] compiledGrammars) 
@@ -102,6 +107,9 @@ namespace Tools.AI.NGram
         /// <returns></returns>
         private UniGram GetUniGram(string[] inData)
         {
+            Assert.IsNotNull(inData);
+            Assert.AreEqual(n - 1, inData.Length);
+
             if (cachedInData == inData)
             {
                 return cachedUniGram;

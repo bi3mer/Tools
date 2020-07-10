@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
 using NUnit.Framework.Internal;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Tools.AI.NGram;
 using UnityEngine;
@@ -112,7 +113,6 @@ namespace Editor.Tests.Tools.AI.NGramTests
             {
                 if (compiledGram.Get(input) == expected)
                 {
-                    Debug.Log($"{i} => {expected}");
                     found = true;
                     break;
                 }
@@ -205,7 +205,81 @@ namespace Editor.Tests.Tools.AI.NGramTests
         [Test]
         public void TestGetValues()
         {
+            HierarchicalNGram uncompiled = new HierarchicalNGram(2);
+            ICompiledGram compiled = uncompiled.Compile();
 
+            Assert.Throws<UnityEngine.Assertions.AssertionException>(() =>
+            {
+                compiled.GetValues(null);
+            });
+
+            Assert.Throws<UnityEngine.Assertions.AssertionException>(() =>
+            {
+                compiled.GetValues(new string[] { "a", "b" });
+            });
+
+            Assert.Throws<UnityEngine.Assertions.AssertionException>(() =>
+            {
+                compiled.GetValues(new string[] { "a", "b", "c" });
+            });
+
+            Assert.AreEqual(0, compiled.GetValues(new string[] { "a" }).Keys.Count);
+
+            // Test with one entry a->c
+            uncompiled.AddData(new string[] { "a" }, "c");
+            compiled = uncompiled.Compile();
+
+            Assert.Throws<UnityEngine.Assertions.AssertionException>(() =>
+            {
+                compiled.GetValues(null);
+            });
+
+            Assert.Throws<UnityEngine.Assertions.AssertionException>(() =>
+            {
+                compiled.GetValues(new string[] { "a", "b" });
+            });
+
+            Assert.Throws<UnityEngine.Assertions.AssertionException>(() =>
+            {
+                compiled.GetValues(new string[] { "a", "b", "c" });
+            });
+
+            Dictionary<string, float> values = compiled.GetValues(new string[] { "z" });
+            Assert.AreEqual(1, values.Keys.Count);
+            Assert.IsTrue(values.ContainsKey("c"));
+            Assert.AreEqual(1f, values["c"]);
+
+            values = compiled.GetValues(new string[] { "a" });
+            Assert.AreEqual(1, values.Keys.Count);
+            Assert.IsTrue(values.ContainsKey("c"));
+            Assert.AreEqual(1f, values["c"]);
+
+            // test with three entries a->c, b->c & b->d
+            uncompiled.AddData(new string[] { "b" }, "c");
+            uncompiled.AddData(new string[] { "b" }, "d");
+            compiled = uncompiled.Compile();
+
+            values = compiled.GetValues(new string[] { "z" });
+            Assert.AreEqual(2, values.Keys.Count);
+            Assert.IsTrue(values.ContainsKey("c"));
+            Assert.IsTrue(values.ContainsKey("d"));
+            Assert.IsTrue(Mathf.Approximately(0.6666667f, values["c"]));
+            Assert.IsTrue(Mathf.Approximately(0.3333333f, values["d"]));
+
+            values = compiled.GetValues(new string[] { "a" });
+            Assert.AreEqual(2, values.Keys.Count);
+            Assert.IsTrue(values.ContainsKey("c"));
+            Assert.IsTrue(values.ContainsKey("d"));
+            Assert.IsTrue(Mathf.Approximately(0.6666667f, values["c"]));
+            Assert.IsTrue(Mathf.Approximately(0.3333333f, values["d"]));
+
+            values = compiled.GetValues(new string[] { "b" });
+            Assert.AreEqual(2, values.Keys.Count);
+            Assert.IsTrue(values.ContainsKey("c"));
+            Assert.IsTrue(values.ContainsKey("d"));
+
+            //Assert.IsTrue(Mathf.Approximately(0.3333333f, values["c"]));
+            //Assert.IsTrue(Mathf.Approximately(0.6666667f, values["d"]));
         }
     }
 }

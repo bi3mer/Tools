@@ -1,11 +1,14 @@
 ﻿using System.Collections.Generic;
 using UnityEngine.Assertions;
 using Tools.DataStructures;
+using System;
 
 namespace Tools.AI.NGram
 {
     public static class NGramGenerator
     {
+        private static int attempts;
+
         /// <summary>
         /// This will generate a list of output where it assumes that there is a
         /// final state that can be reached. Like how a mario level always ends 
@@ -21,7 +24,14 @@ namespace Tools.AI.NGram
             CircularQueue<string> queue = new CircularQueue<string>(gram.GetN() - 1);
             queue.AddRange(startInput);
 
-            List<string> outputLevel = GenerateTree(gram, queue.ToArray(), minSize - startInput.Count, maxSize - startInput.Count);
+            attempts = 10000; // @NOTE: this could be configurable
+
+            List<string> outputLevel = GenerateTree(
+                gram, 
+                queue.ToArray(), 
+                minSize - startInput.Count, 
+                maxSize - startInput.Count); 
+
             List<string> level = new List<string>(startInput);
             level.AddRange(outputLevel);
 
@@ -43,9 +53,26 @@ namespace Tools.AI.NGram
 
             foreach (string guess in guesses)
             {
+                // The current problem is that a flag is included in the unigram of
+                // the hierarchical n-gram. I'm not sure how to get around this 
+                // problem at the moment because the result is that a level can be
+                // generated with multiple endings when I really only want the level
+                // to be generated at the end. The other problem is that i will soon
+                // have the simplified level already generated. SO maybe I just remove
+                // them an auto place the flag at the end. Then I don't need this tree
+                // structure at all. Or the attempts. So I just generate of arbitrary
+                // length and then put a flag in at the end and call it a day.
+                //
+                // But with the simplified, I really do only want to generate pieces
+                // that correctly fit. with this method.
+                --attempts;
                 newPrior[prior.Length - 1] = guess;
 
-                if (gram.HasNextStep(newPrior))
+                if (attempts <= 0)
+                {
+                    return new List<string>() { guess };
+                }
+                else if (gram.HasNextStep(newPrior))
                 {
                     if (minSize > 0)
                     {
@@ -80,34 +107,3 @@ namespace Tools.AI.NGram
         }
     }
 }
-
-
-//List<string> output = new List<string>();
-//output.AddRange(startInput);
-//int capacity = gram.GetN() - 1;
-//CircularQueue<string> queue = new CircularQueue<string>(capacity);
-//queue.AddRange(startInput);
-
-//bool done = false;
-//int size = 0;
-
-//do
-//{
-//    string[] prior = queue.ToArray();
-//    if (gram.HasNextStep(prior))
-//    {
-//        string token = gram.Get(prior);
-//        UnityEngine.Debug.Log(string.Join(",", gram.GetGuesses(prior)));
-
-//        output.Add(token);
-//        queue.Add(token);
-//        ++size;
-//    }
-//    else
-//    {
-//        done = true;
-//    }
-//}
-//while (done == false);
-
-//return output;
