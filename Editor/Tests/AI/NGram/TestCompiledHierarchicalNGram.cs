@@ -181,31 +181,43 @@ namespace Editor.Tests.Tools.AI.NGramTests
         public void TestGet()
         {
             HierarchicalNGram gram = new HierarchicalNGram(3);
+            gram.AddData(new string[] { "b", "a" }, "a");
             gram.AddData(new string[] { "b", "a" }, "c");
             gram.AddData(new string[] { "b", "c" }, "c");
-            gram.AddData(new string[] { "b", "a" }, "a");
             gram.AddData(new string[] { "a", "a" }, "d");
 
             ICompiledGram compiledGram = gram.Compile();
 
-            Assert.IsTrue(FoundValue(compiledGram, "c", new string[] { "b", "a" }, 500));
-            Assert.IsTrue(FoundValue(compiledGram, "a", new string[] { "b", "a" }, 500));
-            Assert.IsTrue(FoundValue(compiledGram, "d", new string[] { "b", "a" }, 2000));
+            Assert.IsTrue(FoundValue(compiledGram, "c", new string[] { "b", "a" }, 1000));
+            Assert.IsTrue(FoundValue(compiledGram, "d", new string[] { "b", "a" }, 1000));
+            Assert.IsTrue(FoundValue(compiledGram, "a", new string[] { "b", "a" }, 1000));
 
-            // b,c
-            // a,a
+            Assert.IsTrue(FoundValue(compiledGram, "c", new string[] { "b", "c" }, 1000));
+            Assert.IsTrue(FoundValue(compiledGram, "d", new string[] { "b", "c" }, 1000));
+            Assert.IsTrue(FoundValue(compiledGram, "a", new string[] { "b", "c" }, 1000));
 
+            Assert.IsTrue(FoundValue(compiledGram, "c", new string[] { "a", "a" }, 1000));
+            Assert.IsTrue(FoundValue(compiledGram, "d", new string[] { "a", "a" }, 1000));
+            Assert.IsTrue(FoundValue(compiledGram, "a", new string[] { "a", "a" }, 1000));
+
+            Assert.IsTrue(FoundValue(compiledGram, "c", new string[] { "z", "d" }, 1000));
+            Assert.IsTrue(FoundValue(compiledGram, "d", new string[] { "z", "d" }, 1000));
+            Assert.IsTrue(FoundValue(compiledGram, "a", new string[] { "z", "d" }, 1000));
 
             Assert.Throws<UnityEngine.Assertions.AssertionException>(() =>
             {
                 compiledGram.Get(null);
             });
 
-            // test too long
-            // test too short
-            // test unseen
+            Assert.Throws<UnityEngine.Assertions.AssertionException>(() =>
+            {
+                compiledGram.Get(new string[] { "z" });
+            });
 
-            Assert.Fail();
+            Assert.Throws<UnityEngine.Assertions.AssertionException>(() =>
+            {
+                compiledGram.Get(new string[] { "z", "a", "d" });
+            });
         }
 
         [Test]
@@ -317,27 +329,41 @@ namespace Editor.Tests.Tools.AI.NGramTests
             uncompiled.AddData(new string[] { "b" }, "d");
             compiled = uncompiled.Compile();
 
-            values = compiled.GetValues(new string[] { "z" });
+            // in this case we haven't seen the prior "z" so we only have the 
+            // unigram to work with
+            values = compiled.GetValues(new string[] { "z" }); 
             Assert.AreEqual(2, values.Keys.Count);
             Assert.IsTrue(values.ContainsKey("c"));
             Assert.IsTrue(values.ContainsKey("d"));
             Assert.IsTrue(Mathf.Approximately(0.6666667f, values["c"]));
             Assert.IsTrue(Mathf.Approximately(0.3333333f, values["d"]));
 
-            values = compiled.GetValues(new string[] { "a" });
-            Assert.AreEqual(2, values.Keys.Count);
-            Assert.IsTrue(values.ContainsKey("c"));
-            Assert.IsTrue(values.ContainsKey("d"));
-            Assert.IsTrue(Mathf.Approximately(0.6666667f, values["c"]));
-            Assert.IsTrue(Mathf.Approximately(0.3333333f, values["d"]));
+            Assert.Fail();
 
-            values = compiled.GetValues(new string[] { "b" });
-            Assert.AreEqual(2, values.Keys.Count);
-            Assert.IsTrue(values.ContainsKey("c"));
-            Assert.IsTrue(values.ContainsKey("d"));
+            // we have the prior a, so we are working with it and the unigram
+            //values = compiled.GetValues(new string[] { "a" });
+            //Assert.AreEqual(2, values.Keys.Count);
+            //Assert.IsTrue(values.ContainsKey("c"));
+            //Assert.IsTrue(values.ContainsKey("d"));
+            //Assert.IsTrue(Mathf.Approximately(0.6666667f, values["c"]));
+            //Assert.IsTrue(Mathf.Approximately(0.3333333f, values["d"]));
 
-            Assert.IsTrue(Mathf.Approximately(0.3333333f, values["c"]));
-            Assert.IsTrue(Mathf.Approximately(0.6666667f, values["d"]));
+            // we have the prior b, so we are working with it and the unigram
+            //values = compiled.GetValues(new string[] { "b" });
+            //Assert.AreEqual(2, values.Keys.Count);
+            //Assert.IsTrue(values.ContainsKey("c"));
+            //Assert.IsTrue(values.ContainsKey("d"));
+
+            //float denominator = 0.375f + 0.625f;
+            //float expectedValue = (0.375f * 0.6666667f + 0.625f + 0.5f) ;
+            //Assert.IsTrue(
+            //    Mathf.Approximately(expectedValue, values["c"]),
+            //    $"Expected {expectedValue} but received {values["c"]}.");
+
+            //expectedValue = 0.375f * 0.3333333f + 0.625f + 0.5f;
+            //Assert.IsTrue(
+            //    Mathf.Approximately(expectedValue, values["d"]),
+            //    $"Expected {expectedValue} but received {values["d"]}.");
         }
     }
 }
