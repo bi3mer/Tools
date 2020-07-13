@@ -2,7 +2,6 @@
 using UnityEngine.Assertions;
 using System.Linq;
 using System;
-using System.Diagnostics;
 
 namespace Tools.AI.NGram
 {
@@ -35,11 +34,10 @@ namespace Tools.AI.NGram
                 Weights[grammarSize] = currentWeight;
             }
 
-            Weights[0] += 1 - weightSum;
 
             for (int i = 0; i < Weights.Length; ++i)
             {
-                UnityEngine.Debug.Log($"{i}: {Weights[i]}");
+                Weights[i] /= weightSum;
             }
         }
 
@@ -124,7 +122,7 @@ namespace Tools.AI.NGram
                 Dictionary<string, float> grammarValues = null;
                 int n = gram.GetN() - 1;
 
-                if (n == -1)
+                if (n == 0)
                 {
                     // unigram special case
                     grammarValues = gram.GetValues(null);
@@ -144,7 +142,7 @@ namespace Tools.AI.NGram
                 { 
                     foreach (KeyValuePair<string, float> kvp in grammarValues)
                     {
-                        grammar.AddData(kvp.Key, kvp.Value * Weights[n + 1]);
+                        grammar.AddData(kvp.Key, kvp.Value * Weights[n]);
                     }
                 }
             }

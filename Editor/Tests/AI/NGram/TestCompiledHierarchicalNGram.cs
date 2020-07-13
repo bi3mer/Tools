@@ -26,6 +26,62 @@ namespace Editor.Tests.Tools.AI.NGramTests
             Assert.DoesNotThrow(() => { gram.Compile(); });
         }
 
+        [Test]
+        public void TestWeightBuilding()
+        {
+            CompiledHierarchicalNGram compiled;
+            HierarchicalNGram gram;
+
+            // test two detailed
+            gram = new HierarchicalNGram(2);
+            compiled = gram.Compile() as CompiledHierarchicalNGram;
+
+            Assert.AreEqual(0.375f, compiled.Weights[0]);
+            Assert.AreEqual(0.625f, compiled.Weights[1]);
+            Assert.AreEqual(1f, compiled.Weights[0] + compiled.Weights[1]);
+
+            // test three detailed
+            gram = new HierarchicalNGram(3);
+            compiled = gram.Compile() as CompiledHierarchicalNGram;
+
+            Assert.IsTrue(
+                Mathf.Approximately(0.183673469f, compiled.Weights[0]),
+                $"Expected ~0.18 and received ${compiled.Weights[0]}");
+
+            Assert.IsTrue(
+                Mathf.Approximately(0.3061224f, compiled.Weights[1]),
+                $"Expected ~0.306f and received ${compiled.Weights[1]}");
+
+            Assert.IsTrue(
+                Mathf.Approximately(0.5102041f, compiled.Weights[2]),
+                $"Expected ~0.510f and received {compiled.Weights[2]}");
+
+            Assert.AreEqual(1f, compiled.Weights[0] + compiled.Weights[1] + compiled.Weights[2]);
+
+            // test 4 to 100 more broadly
+            for (int i = 4; i < 100; ++i)
+            {
+                gram = new HierarchicalNGram(i);
+                compiled = gram.Compile() as CompiledHierarchicalNGram;
+                Assert.IsNotNull(compiled);
+
+                float previousWeight = 0;
+                float total = 0;
+                foreach (float weight in compiled.Weights)
+                {
+                    total += weight;
+                    Assert.IsFalse(weight <= 0, $"{i}: has a negative weight {weight}");
+
+                    Assert.IsTrue(previousWeight < weight);
+                    previousWeight = weight;
+                }
+
+                Assert.IsTrue(
+                    Mathf.Approximately(1f, total),
+                    $"Total weight is {total} which should atleast be very close to 1.");
+            }
+        }
+
         private void TestValues(ICompiledGram original, ICompiledGram clone, string[] key)
         {
             Assert.IsNotNull(original);
@@ -148,6 +204,8 @@ namespace Editor.Tests.Tools.AI.NGramTests
             // test too long
             // test too short
             // test unseen
+
+            Assert.Fail();
         }
 
         [Test]
@@ -278,8 +336,8 @@ namespace Editor.Tests.Tools.AI.NGramTests
             Assert.IsTrue(values.ContainsKey("c"));
             Assert.IsTrue(values.ContainsKey("d"));
 
-            //Assert.IsTrue(Mathf.Approximately(0.3333333f, values["c"]));
-            //Assert.IsTrue(Mathf.Approximately(0.6666667f, values["d"]));
+            Assert.IsTrue(Mathf.Approximately(0.3333333f, values["c"]));
+            Assert.IsTrue(Mathf.Approximately(0.6666667f, values["d"]));
         }
     }
 }
