@@ -338,32 +338,37 @@ namespace Editor.Tests.Tools.AI.NGramTests
             Assert.IsTrue(Mathf.Approximately(0.6666667f, values["c"]));
             Assert.IsTrue(Mathf.Approximately(0.3333333f, values["d"]));
 
-            Assert.Fail();
-
             // we have the prior a, so we are working with it and the unigram
-            //values = compiled.GetValues(new string[] { "a" });
-            //Assert.AreEqual(2, values.Keys.Count);
-            //Assert.IsTrue(values.ContainsKey("c"));
-            //Assert.IsTrue(values.ContainsKey("d"));
-            //Assert.IsTrue(Mathf.Approximately(0.6666667f, values["c"]));
-            //Assert.IsTrue(Mathf.Approximately(0.3333333f, values["d"]));
+            values = compiled.GetValues(new string[] { "a" });
+            Assert.AreEqual(2, values.Keys.Count);
+            Assert.IsTrue(values.ContainsKey("c"));
+            Assert.IsTrue(values.ContainsKey("d"));
+
+            float expectedValue = (0.375f * 0.6666667f + 0.625f * 1f);
+            Assert.IsTrue(
+                Mathf.Approximately(expectedValue, values["c"]),
+                $"Expected {expectedValue} but received {values["c"]}.");
+
+            expectedValue = 0.375f * 0.3333333f + 0.625f * 0f;
+            Assert.IsTrue(
+                Mathf.Approximately(expectedValue, values["d"]),
+                $"Expected {expectedValue} but received {values["d"]}.");
 
             // we have the prior b, so we are working with it and the unigram
-            //values = compiled.GetValues(new string[] { "b" });
-            //Assert.AreEqual(2, values.Keys.Count);
-            //Assert.IsTrue(values.ContainsKey("c"));
-            //Assert.IsTrue(values.ContainsKey("d"));
+            values = compiled.GetValues(new string[] { "b" });
+            Assert.AreEqual(2, values.Keys.Count);
+            Assert.IsTrue(values.ContainsKey("c"));
+            Assert.IsTrue(values.ContainsKey("d"));
 
-            //float denominator = 0.375f + 0.625f;
-            //float expectedValue = (0.375f * 0.6666667f + 0.625f + 0.5f) ;
-            //Assert.IsTrue(
-            //    Mathf.Approximately(expectedValue, values["c"]),
-            //    $"Expected {expectedValue} but received {values["c"]}.");
+            expectedValue = (0.375f * 0.6666667f + 0.625f * 0.5f);
+            Assert.IsTrue(
+                Mathf.Approximately(expectedValue, values["c"]),
+                $"Expected {expectedValue} but received {values["c"]}.");
 
-            //expectedValue = 0.375f * 0.3333333f + 0.625f + 0.5f;
-            //Assert.IsTrue(
-            //    Mathf.Approximately(expectedValue, values["d"]),
-            //    $"Expected {expectedValue} but received {values["d"]}.");
+            expectedValue = 0.375f * 0.3333333f + 0.625f * 0.5f;
+            Assert.IsTrue(
+                Mathf.Approximately(expectedValue, values["d"]),
+                $"Expected {expectedValue} but received {values["d"]}.");
         }
     }
 }
