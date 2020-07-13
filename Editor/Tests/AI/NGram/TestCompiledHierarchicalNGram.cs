@@ -1,7 +1,6 @@
 ﻿using NUnit.Framework;
 using NUnit.Framework.Internal;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using Tools.AI.NGram;
 using UnityEngine;
@@ -13,7 +12,7 @@ namespace Editor.Tests.Tools.AI.NGramTests
         [Test]
         public void TestConstructor()
         {
-            HierarchicalNGram gram = new HierarchicalNGram(3);
+            HierarchicalNGram gram = new HierarchicalNGram(3, 0.6f);
             Assert.DoesNotThrow(() => { gram.Compile(); });
             gram.AddData(new string[] { "b", "a" }, "a");
             Assert.DoesNotThrow(() => { gram.Compile(); });
@@ -33,7 +32,7 @@ namespace Editor.Tests.Tools.AI.NGramTests
             HierarchicalNGram gram;
 
             // test two detailed
-            gram = new HierarchicalNGram(2);
+            gram = new HierarchicalNGram(2, 0.6f);
             compiled = gram.Compile() as CompiledHierarchicalNGram;
 
             Assert.AreEqual(0.375f, compiled.Weights[0]);
@@ -41,7 +40,7 @@ namespace Editor.Tests.Tools.AI.NGramTests
             Assert.AreEqual(1f, compiled.Weights[0] + compiled.Weights[1]);
 
             // test three detailed
-            gram = new HierarchicalNGram(3);
+            gram = new HierarchicalNGram(3, 0.6f);
             compiled = gram.Compile() as CompiledHierarchicalNGram;
 
             Assert.IsTrue(
@@ -61,7 +60,7 @@ namespace Editor.Tests.Tools.AI.NGramTests
             // test 4 to 100 more broadly
             for (int i = 4; i < 100; ++i)
             {
-                gram = new HierarchicalNGram(i);
+                gram = new HierarchicalNGram(i, 0.6f);
                 compiled = gram.Compile() as CompiledHierarchicalNGram;
                 Assert.IsNotNull(compiled);
 
@@ -99,7 +98,7 @@ namespace Editor.Tests.Tools.AI.NGramTests
         [Test]
         public void TestClone()
         {
-            HierarchicalNGram gram = new HierarchicalNGram(3);
+            HierarchicalNGram gram = new HierarchicalNGram(3, 0.6f);
             gram.AddData(new string[] { "b", "a" }, "a");
             gram.AddData(new string[] { "b", "a" }, "z");
             gram.AddData(new string[] { "b", "f" }, "2");
@@ -180,7 +179,7 @@ namespace Editor.Tests.Tools.AI.NGramTests
         [Test]
         public void TestGet()
         {
-            HierarchicalNGram gram = new HierarchicalNGram(3);
+            HierarchicalNGram gram = new HierarchicalNGram(3, 0.6f);
             gram.AddData(new string[] { "b", "a" }, "a");
             gram.AddData(new string[] { "b", "a" }, "c");
             gram.AddData(new string[] { "b", "c" }, "c");
@@ -223,7 +222,7 @@ namespace Editor.Tests.Tools.AI.NGramTests
         [Test]
         public void TestGetGuesses()
         {
-            HierarchicalNGram gram = new HierarchicalNGram(3);
+            HierarchicalNGram gram = new HierarchicalNGram(3, 0.6f);
             gram.AddData(new string[] { "b", "a" }, "c");
             gram.AddData(new string[] { "b", "c" }, "c");
             gram.AddData(new string[] { "b", "a" }, "a");
@@ -250,7 +249,7 @@ namespace Editor.Tests.Tools.AI.NGramTests
         [Test]
         public void TestHasNextStep()
         {
-            HierarchicalNGram gram = new HierarchicalNGram(3);
+            HierarchicalNGram gram = new HierarchicalNGram(3, 0.6f);
             Assert.IsFalse(gram.Compile().HasNextStep(new string[] { "a", "b" }));
 
             gram.AddData(new string[] { "a", "b" }, "c");
@@ -268,14 +267,14 @@ namespace Editor.Tests.Tools.AI.NGramTests
         {
             for (int i = 2; i < 100; ++i)
             {
-                Assert.AreEqual(i, new HierarchicalNGram(i).Compile().GetN());
+                Assert.AreEqual(i, new HierarchicalNGram(i, 0.6f).Compile().GetN());
             }
         }
 
         [Test]
         public void TestGetValues()
         {
-            HierarchicalNGram uncompiled = new HierarchicalNGram(2);
+            HierarchicalNGram uncompiled = new HierarchicalNGram(2, 0.6f);
             ICompiledGram compiled = uncompiled.Compile();
 
             Assert.Throws<UnityEngine.Assertions.AssertionException>(() =>

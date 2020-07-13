@@ -21,7 +21,7 @@ namespace Tools.AI.NGram
             return gram;
         }
 
-        public static IGram InitHierarchicalNGram(int n)
+        public static IGram InitHierarchicalNGram(int n, float weightMultiplier)
         {
             Assert.IsTrue(n >= 1);
 
@@ -32,7 +32,7 @@ namespace Tools.AI.NGram
             }
             else
             {
-                gram = new HierarchicalNGram(n);
+                gram = new HierarchicalNGram(n, weightMultiplier);
             }
 
             return gram;

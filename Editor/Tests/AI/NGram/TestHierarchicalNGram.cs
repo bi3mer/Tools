@@ -15,18 +15,32 @@ namespace Editor.Tests.Tools.AI.NGramTests
         [Test]
         public void TestConstruction()
         {
-            Assert.Throws<UnityEngine.Assertions.AssertionException>(
-                () => { IGram test = new HierarchicalNGram(0); });
+            Assert.Throws<UnityEngine.Assertions.AssertionException>(() => 
+            { 
+                IGram test = new HierarchicalNGram(0, 0.6f); 
+            });
 
-            Assert.Throws<UnityEngine.Assertions.AssertionException>(
-                () => { IGram test = new HierarchicalNGram(1); });
+            Assert.Throws<UnityEngine.Assertions.AssertionException>(() => 
+            { 
+                IGram test = new HierarchicalNGram(1, 0.6f); 
+            });
+
+            Assert.Throws<UnityEngine.Assertions.AssertionException>(() =>
+            {
+                new HierarchicalNGram(1, 0f);
+            });
+
+            Assert.Throws<UnityEngine.Assertions.AssertionException>(() =>
+            {
+                new HierarchicalNGram(1, 1f);
+            });
 
             for (int i = 2; i < 15; ++i)
             {
-                Assert.DoesNotThrow(() => { IGram test = new HierarchicalNGram(i); });
+                Assert.DoesNotThrow(() => { IGram test = new HierarchicalNGram(i, 0.6f); });
             }
 
-            HierarchicalNGram a = new HierarchicalNGram(3);
+            HierarchicalNGram a = new HierarchicalNGram(3, 0.6f);
             Assert.AreEqual(3, a.Grammars.Length);
 
             UniGram u1 = a.Grammars[0] as UniGram;
@@ -41,7 +55,7 @@ namespace Editor.Tests.Tools.AI.NGramTests
         [Test]
         public void TestAddData()
         {
-            HierarchicalNGram a = new HierarchicalNGram(3);
+            HierarchicalNGram a = new HierarchicalNGram(3, 0.6f);
             UniGram u1 = a.Grammars[0] as UniGram;
             NGram n2 = a.Grammars[1] as NGram;
             NGram n3 = a.Grammars[2] as NGram;
@@ -83,7 +97,7 @@ namespace Editor.Tests.Tools.AI.NGramTests
         [Test]
         public void TestUpdateMemory()
         {
-            HierarchicalNGram a = new HierarchicalNGram(3);
+            HierarchicalNGram a = new HierarchicalNGram(3, 0.6f);
             UniGram u1 = a.Grammars[0] as UniGram;
             NGram n2 = a.Grammars[1] as NGram;
             NGram n3 = a.Grammars[2] as NGram;
@@ -111,7 +125,7 @@ namespace Editor.Tests.Tools.AI.NGramTests
         [Test]
         public void TestAddUnigram()
         {
-            HierarchicalNGram a = new HierarchicalNGram(2);
+            HierarchicalNGram a = new HierarchicalNGram(2, 0.6f);
             UniGram u1 = a.Grammars[0] as UniGram;
             NGram n2 = a.Grammars[1] as NGram;
 
@@ -127,7 +141,7 @@ namespace Editor.Tests.Tools.AI.NGramTests
         [Test]
         public void TestAddNGram()
         {
-            HierarchicalNGram a = new HierarchicalNGram(3);
+            HierarchicalNGram a = new HierarchicalNGram(3, 0.6f);
             UniGram u1 = a.Grammars[0] as UniGram;
             NGram n2 = a.Grammars[1] as NGram;
             NGram n3 = a.Grammars[2] as NGram;
@@ -158,13 +172,13 @@ namespace Editor.Tests.Tools.AI.NGramTests
         [Test]
         public void TestAddHierarchicalNGram()
         {
-            HierarchicalNGram a = new HierarchicalNGram(3);
+            HierarchicalNGram a = new HierarchicalNGram(3, 0.6f);
             a.AddData(new string[] { "a", "b" }, "c");
             UniGram u1 = a.Grammars[0] as UniGram;
             NGram n2 = a.Grammars[1] as NGram;
             NGram n3 = a.Grammars[2] as NGram;
 
-            HierarchicalNGram b = new HierarchicalNGram(3);
+            HierarchicalNGram b = new HierarchicalNGram(3, 0.6f);
             b.AddData(new string[] { "a", "b" }, "c");
             b.AddData(new string[] { "a", "b" }, "c");
             b.AddData(new string[] { "c", "b" }, "c");
@@ -191,7 +205,7 @@ namespace Editor.Tests.Tools.AI.NGramTests
         {
             for (int i = 2; i < 15; ++i)
             {
-                Assert.AreEqual(i, new HierarchicalNGram(i).GetN());  
+                Assert.AreEqual(i, new HierarchicalNGram(i, 0.6f).GetN());  
             }
         }
     }

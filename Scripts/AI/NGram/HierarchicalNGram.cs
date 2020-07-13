@@ -1,7 +1,6 @@
 ﻿using UnityEngine.Assertions;
 using System.Linq;
 using System;
-using System.Diagnostics;
 
 namespace Tools.AI.NGram
 {
@@ -9,10 +8,15 @@ namespace Tools.AI.NGram
     {
         public int N { get; private set; }
         public IGram[] Grammars { get; private set; }
+        public float CompiledMemoryUpdate { get; private set; }
 
-        public HierarchicalNGram(int n)
+        public HierarchicalNGram(int n, float compiledMemoryUpdate)
         {
+            Assert.IsTrue(compiledMemoryUpdate > 0);
+            Assert.IsTrue(compiledMemoryUpdate < 1);
             Assert.IsTrue(n > 1);
+
+            CompiledMemoryUpdate = compiledMemoryUpdate;
             N = n;
 
             Grammars = new IGram[n];

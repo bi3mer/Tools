@@ -14,10 +14,11 @@ namespace Tools.AI.NGram
         private string[] cachedInData;
         private UniGram cachedUniGram;
 
-        private const float weightMultiplier = 0.6f;
+        private readonly float weightMultiplier;
 
         public CompiledHierarchicalNGram(HierarchicalNGram hierarchicalGram)
         {
+            weightMultiplier = hierarchicalGram.CompiledMemoryUpdate;
             CompiledGrammars = new ICompiledGram[hierarchicalGram.N];
             Weights = new float[hierarchicalGram.N];
             n = hierarchicalGram.N;
@@ -41,10 +42,11 @@ namespace Tools.AI.NGram
             }
         }
 
-        private CompiledHierarchicalNGram(float[] weights, ICompiledGram[] compiledGrammars) 
+        private CompiledHierarchicalNGram(float[] weights, ICompiledGram[] compiledGrammars, float weightMultiplier) 
         {
             CompiledGrammars = compiledGrammars;
             Weights = weights;
+            this.weightMultiplier = weightMultiplier;
             n = compiledGrammars.Length;
         }
 
@@ -60,7 +62,7 @@ namespace Tools.AI.NGram
                 weights[i] = Weights[i];
             }
 
-            return new CompiledHierarchicalNGram(weights, compiledGrammars);
+            return new CompiledHierarchicalNGram(weights, compiledGrammars, weightMultiplier);
         }
 
         public string Get(string[] inData)
