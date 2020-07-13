@@ -22,6 +22,13 @@ namespace Tools.DataStructures
             queue = new Queue<T>(capacity);
         }
 
+        public CircularQueue<T> Clone()
+        {
+            CircularQueue<T> clone = new CircularQueue<T>(Capacity);
+            clone.AddRange(new Queue<T>(queue));
+            return clone;
+        }
+
         public void Add(T element)
         {
             if (queue.Count == Capacity)
