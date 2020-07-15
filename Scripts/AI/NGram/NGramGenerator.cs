@@ -21,29 +21,39 @@ namespace Tools.AI.NGram
         /// <param name="grammar"></param>
         /// <param name="startInput"></param>
         /// <param name="size"></param>
-        /// <param name="acceptedType"></param>
+        /// <param name="acceptedTypes"></param>
         /// <param name="classifier"></param>
         /// <returns></returns>
         public static List<string> GenerateRestricted(
             ICompiledGram grammar,
             List<string> startInput,
-            int size,
-            string acceptedType,
+            List<string> acceptedTypes,
             Func<string, string> classifier)
         {
-            Assert.IsFalse(string.IsNullOrEmpty(acceptedType));
+            Assert.IsNotNull(acceptedTypes);
+            Assert.IsTrue(acceptedTypes.Count > 0);
             Assert.IsNotNull(classifier);
             Assert.IsNotNull(grammar);
-            Assert.IsTrue(size > 0);
             Assert.IsNotNull(startInput);
             Assert.IsTrue(startInput.Count > grammar.GetN() - 1);
 
             CircularQueue<string> queue = new CircularQueue<string>(grammar.GetN() - 1);
             queue.AddRange(startInput);
 
-            List<string> outputLevel = GenerateTree(grammar, queue, size, acceptedType, classifier);
-            List<string> level = new List<string>(startInput);
-            level.AddRange(outputLevel);
+            List<string> outputLevel = GenerateTree(
+                grammar, 
+                queue,
+                acceptedTypes.Count - startInput.Count, 
+                startInput.Count, 
+                acceptedTypes, 
+                classifier);
+
+            List<string> level = null;
+            if (outputLevel != null)
+            { 
+                level = new List<string>(startInput);
+                level.AddRange(outputLevel);
+            }
 
             return level;
         }
@@ -66,7 +76,7 @@ namespace Tools.AI.NGram
             CircularQueue<string> queue = new CircularQueue<string>(grammar.GetN() - 1);
             queue.AddRange(startInput);
 
-            List<string> outputLevel = GenerateTree(grammar, queue, size, null, null); 
+            List<string> outputLevel = GenerateTree(grammar, queue, size, 0, null, null); 
             List<string> level = new List<string>(startInput);
             level.AddRange(outputLevel);
 
@@ -77,13 +87,15 @@ namespace Tools.AI.NGram
             ICompiledGram gram, 
             CircularQueue<string> prior, 
             int size,
-            string acceptedType,
+            int index,
+            List<string> acceptedTypes,
             Func<string, string> classifier)
         {
             string[] guesses = gram.GetGuesses(prior.ToArray());
             foreach (string guess in guesses)
             {
-                if (classifier != null && !classifier(guess).Equals(acceptedType))
+                if (classifier != null && 
+                    !classifier(guess).Equals(acceptedTypes[index]))
                 {
                     continue;
                 }
@@ -98,7 +110,14 @@ namespace Tools.AI.NGram
                 }
                 else if (gram.HasNextStep(newPrior.ToArray()))
                 {
-                    List<string> returnVal = GenerateTree(gram, newPrior, size - 1, acceptedType, classifier);
+                    List<string> returnVal = GenerateTree(
+                        gram, 
+                        newPrior, 
+                        size - 1, 
+                        index + 1, 
+                        acceptedTypes, 
+                        classifier);
+
                     if (returnVal != null)
                     {
                         returnVal.Insert(0, guess);
