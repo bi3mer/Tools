@@ -93,5 +93,15 @@ namespace Tools.AI.NGram
         {
             return grammar.Keys.Count > 0;
         }
+
+        public double Perplexity(string[] inData)
+        {
+            return 0;
+        }
+
+        public double SequenceProbability(string[] inData)
+        {
+            return 0;
+        }
     }
 }

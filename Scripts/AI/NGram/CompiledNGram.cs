@@ -86,5 +86,15 @@ namespace Tools.AI.NGram
         {
             return string.Join(",", inData);
         }
+
+        public double Perplexity(string[] inData)
+        {
+            return 0;
+        }
+
+        public double SequenceProbability(string[] inData)
+        {
+            return 0;
+        }
     }
 }

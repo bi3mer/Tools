@@ -10,5 +10,7 @@ namespace Tools.AI.NGram
         bool HasNextStep(string[] inData);
         int GetN();
         Dictionary<string, float> GetValues(string[] inData);
+        double Perplexity(string[] inData);
+        double SequenceProbability(string[] inData);
     }
 }

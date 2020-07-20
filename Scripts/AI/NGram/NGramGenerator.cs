@@ -28,7 +28,8 @@ namespace Tools.AI.NGram
             ICompiledGram grammar,
             List<string> startInput,
             List<string> acceptedTypes,
-            Func<string, string> classifier)
+            Func<string, string> classifier,
+            bool includeStart=true)
         {
             Assert.IsNotNull(acceptedTypes);
             Assert.IsTrue(acceptedTypes.Count > 0);
@@ -48,14 +49,19 @@ namespace Tools.AI.NGram
                 acceptedTypes, 
                 classifier);
 
-            List<string> level = null;
-            if (outputLevel != null)
+            if (includeStart)
             { 
-                level = new List<string>(startInput);
-                level.AddRange(outputLevel);
+                List<string> level = null;
+                if (outputLevel != null)
+                { 
+                    level = new List<string>(startInput);
+                    level.AddRange(outputLevel);
+                }
+
+                return level;
             }
 
-            return level;
+            return outputLevel;
         }
 
         /// <summary>
@@ -71,16 +77,23 @@ namespace Tools.AI.NGram
         public static List<string> Generate(
             ICompiledGram grammar, 
             List<string> startInput, 
-            int size)
+            int size,
+            bool includeStart=true)
         {
             CircularQueue<string> queue = new CircularQueue<string>(grammar.GetN() - 1);
             queue.AddRange(startInput);
 
-            List<string> outputLevel = GenerateTree(grammar, queue, size, 0, null, null); 
-            List<string> level = new List<string>(startInput);
-            level.AddRange(outputLevel);
+            List<string> outputLevel = GenerateTree(grammar, queue, size, 0, null, null);
 
-            return level;
+            if (includeStart)
+            { 
+                List<string> level = new List<string>(startInput);
+                level.AddRange(outputLevel);
+
+                return level;
+            }
+
+            return outputLevel;
         }
 
         private static List<string> GenerateTree(

@@ -31,12 +31,15 @@ namespace Tools.DataStructures
 
         public void Add(T element)
         {
-            if (queue.Count == Capacity)
-            {
-                queue.Dequeue();
-            }
+            if (Capacity > 0)
+            { 
+                if (queue.Count == Capacity)
+                {
+                    queue.Dequeue();
+                }
 
-            queue.Enqueue(element);
+                queue.Enqueue(element);
+            }
         }
 
         public void AddRange(IEnumerable<T> values)
