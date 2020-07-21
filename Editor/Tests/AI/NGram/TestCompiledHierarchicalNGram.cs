@@ -313,15 +313,18 @@ namespace Editor.Tests.Tools.AI.NGramTests
                 compiled.GetValues(new string[] { "a", "b", "c" });
             });
 
+            float uniWeight = (0.36f / (0.6f + 0.36f));
+            float biWeight = (0.6f / (0.6f + 0.36f));
+
             Dictionary<string, float> values = compiled.GetValues(new string[] { "z" });
-            Assert.AreEqual(1, values.Keys.Count);
-            Assert.IsTrue(values.ContainsKey("c"));
-            Assert.AreEqual(1f, values["c"]);
+            Assert.AreEqual(2, values.Keys.Count);
+            Assert.AreEqual(0.5f, values["a"]);
+            Assert.AreEqual(0.5f, values["c"]);
 
             values = compiled.GetValues(new string[] { "a" });
-            Assert.AreEqual(1, values.Keys.Count);
-            Assert.IsTrue(values.ContainsKey("c"));
-            Assert.AreEqual(1f, values["c"]);
+            Assert.AreEqual(2, values.Keys.Count);
+            Assert.AreEqual(0.5 *uniWeight, values["a"]);
+            Assert.AreEqual(biWeight + 0.5 * uniWeight, values["c"]);
 
             // test with three entries a->c, b->c & b->d
             uncompiled.AddData(new string[] { "b" }, "c");
@@ -331,52 +334,52 @@ namespace Editor.Tests.Tools.AI.NGramTests
             // in this case we haven't seen the prior "z" so we only have the 
             // unigram to work with
             values = compiled.GetValues(new string[] { "z" }); 
-            Assert.AreEqual(2, values.Keys.Count);
-            Assert.IsTrue(values.ContainsKey("c"));
-            Assert.IsTrue(values.ContainsKey("d"));
-            Assert.IsTrue(Mathf.Approximately(0.6666667f, values["c"]));
-            Assert.IsTrue(Mathf.Approximately(0.3333333f, values["d"]));
+
+            Assert.AreEqual(4, values.Keys.Count);
+            Assert.IsTrue(values.ContainsKey("a")); // 1
+            Assert.IsTrue(values.ContainsKey("b")); // 2
+            Assert.IsTrue(values.ContainsKey("c")); // 2
+            Assert.IsTrue(values.ContainsKey("d")); // 1
+
+            Assert.AreEqual(1 / 6f, values["a"]);
+            Assert.AreEqual(2 / 6f, values["b"]);
+            Assert.AreEqual(2 / 6f, values["c"]);
+            Assert.AreEqual(1 / 6f, values["d"]);
 
             // we have the prior a, so we are working with it and the unigram
             values = compiled.GetValues(new string[] { "a" });
-            Assert.AreEqual(2, values.Keys.Count);
+            Assert.AreEqual(4, values.Keys.Count);
+            Assert.IsTrue(values.ContainsKey("a"));
+            Assert.IsTrue(values.ContainsKey("b"));
             Assert.IsTrue(values.ContainsKey("c"));
             Assert.IsTrue(values.ContainsKey("d"));
 
-            float expectedValue = (0.375f * 0.6666667f + 0.625f * 1f);
-            Assert.IsTrue(
-                Mathf.Approximately(expectedValue, values["c"]),
-                $"Expected {expectedValue} but received {values["c"]}.");
-
-            expectedValue = 0.375f * 0.3333333f + 0.625f * 0f;
-            Assert.IsTrue(
-                Mathf.Approximately(expectedValue, values["d"]),
-                $"Expected {expectedValue} but received {values["d"]}.");
+            Assert.AreEqual(1 / 6f * uniWeight, values["a"]);            // only unigram
+            Assert.AreEqual(2 / 6f * uniWeight, values["b"]);            // only unigram
+            Assert.AreEqual(biWeight + 2 / 6f * uniWeight, values["c"]); // uni-gram and bi-gram
+            Assert.AreEqual(1 / 6f * uniWeight, values["d"]);            // only unigram
 
             // we have the prior b, so we are working with it and the unigram
             values = compiled.GetValues(new string[] { "b" });
-            Assert.AreEqual(2, values.Keys.Count);
+            Assert.AreEqual(4, values.Keys.Count);
+            Assert.IsTrue(values.ContainsKey("a"));
+            Assert.IsTrue(values.ContainsKey("b"));
             Assert.IsTrue(values.ContainsKey("c"));
             Assert.IsTrue(values.ContainsKey("d"));
 
-            expectedValue = (0.375f * 0.6666667f + 0.625f * 0.5f);
-            Assert.IsTrue(
-                Mathf.Approximately(expectedValue, values["c"]),
-                $"Expected {expectedValue} but received {values["c"]}.");
-
-            expectedValue = 0.375f * 0.3333333f + 0.625f * 0.5f;
-            Assert.IsTrue(
-                Mathf.Approximately(expectedValue, values["d"]),
-                $"Expected {expectedValue} but received {values["d"]}.");
+            Assert.AreEqual(1 / 6f * uniWeight, values["a"]);                   // only unigram
+            Assert.AreEqual(2 / 6f * uniWeight, values["b"]);                   // only unigram
+            Assert.AreEqual(0.5f * biWeight + 2 / 6f * uniWeight, values["c"]); // uni-gram and bi-gram
+            Assert.AreEqual(0.5f * biWeight + 1 / 6f * uniWeight, values["d"]); // only unigram
         }
 
         [Test]
         public void TestSequenceProbability()
         {
             HierarchicalNGram gram = new HierarchicalNGram(3, 0.9f);
-            //Assert.AreEqual(
-            //    0, 
-            //    gram.Compile().SequenceProbability(new string[] { "a", "b", "c" }));
+            Assert.AreEqual(
+                0,
+                gram.Compile().SequenceProbability(new string[] { "a", "b", "c" }));
 
             gram.AddData(new string[] { "a", "a" }, "b");
             Assert.AreEqual(
