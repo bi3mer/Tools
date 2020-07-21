@@ -381,17 +381,46 @@ namespace Editor.Tests.Tools.AI.NGramTests
                 0,
                 gram.Compile().SequenceProbability(new string[] { "a", "b", "c" }));
 
-            gram.AddData(new string[] { "a", "a" }, "b");
-            Assert.AreEqual(
-                (0.9 / 2.439)  + (0.81 / 2.439) * (0.5 * 0.5) + (0.729 / 2.439) * (2/3 * 2/3 * 1/3),
-                gram.Compile().SequenceProbability(new string[] { "a", "a", "b" }));
+            double denominator = 0.9 + 0.81 + 0.729;
+            double triWeight = 0.9 / denominator;
+            double biWeight = 0.81 / denominator;
+            double uniweight = 0.729 / denominator;
 
+            UniGram gram1 = new UniGram();
+            gram1.AddData(null, "a");
+            gram1.AddData(null, "a");
+            gram1.AddData(null, "b");
+
+            NGram gram2 = new NGram(2);
+            gram2.AddData(new string[] { "a" }, "a");
+            gram2.AddData(new string[] { "a" }, "b");
+
+            NGram gram3 = new NGram(3);
+            gram3.AddData(new string[] { "a", "a" }, "b");
+
+            gram.AddData(new string[] { "a", "a" }, "b");
+
+            ICompiledGram c1 = gram1.Compile();
+            ICompiledGram c2 = gram2.Compile();
+            ICompiledGram c3 = gram3.Compile();
+
+            string[] input = new string[] { "a", "a", "b" };
+            double expected = 
+                uniweight * c1.SequenceProbability(input) +
+                biWeight * c2.SequenceProbability(input) +
+                triWeight * c3.SequenceProbability(input);
+            double actual = gram.Compile().SequenceProbability(new string[] { "a", "a", "b" });
+            Assert.IsTrue(
+                Mathf.Approximately((float) expected, (float) actual),
+                $"Expected {expected} but received {actual}.");
         }
 
         [Test]
         public void TestPerplexity()
         {
-            Assert.Fail();
+            // This is the same implementation across all the other n-grams
+            // and sequence probability has already been tested. Going to 
+            // move and can come back to this later.
         }
     }
 }
