@@ -1,6 +1,10 @@
 ﻿using System.Collections.Generic;
 using UnityEngine.Assertions;
 
+using Tools.DataStructures;
+using System;
+using System.Linq;
+
 namespace Tools.AI.NGram
 {
     public class CompiledNGram : ICompiledGram 
@@ -89,12 +93,49 @@ namespace Tools.AI.NGram
 
         public double Perplexity(string[] inData)
         {
-            return 0;
+            double denominator = SequenceProbability(inData);
+
+            if (denominator == 0)
+            {
+                return double.PositiveInfinity;
+            }
+
+            return 1 / denominator;
         }
 
         public double SequenceProbability(string[] inData)
         {
-            return 0;
+            CircularQueue<string> queue = new CircularQueue<string>(n - 1);
+            double logProbabilitySum = 0;
+
+            foreach (string token in inData)
+            {
+                if (queue.IsFull())
+                {
+                    string key = string.Join(",", queue.ToArray());
+                    if (grammar.ContainsKey(key))
+                    {
+                        Dictionary<string, float> keyToProbability = grammar[key].GetValues(null);
+
+                        if (keyToProbability.ContainsKey(token))
+                        {
+                            logProbabilitySum += Math.Log(keyToProbability[token]);
+                        }
+                        else
+                        {
+                            return 0;
+                        }
+                    }
+                    else
+                    {
+                        return 0;
+                    }
+                }
+
+                queue.Add(token);
+            }
+
+            return Math.Pow(Math.E, logProbabilitySum);
         }
     }
 }

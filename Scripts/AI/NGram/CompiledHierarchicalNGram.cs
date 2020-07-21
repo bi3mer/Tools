@@ -162,7 +162,14 @@ namespace Tools.AI.NGram
 
         public double Perplexity(string[] inData)
         {
-            return 0;
+            double denominator = SequenceProbability(inData);
+
+            if (denominator == 0)
+            {
+                return double.PositiveInfinity;
+            }
+
+            return 1 / denominator;
         }
 
         public double SequenceProbability(string[] inData)

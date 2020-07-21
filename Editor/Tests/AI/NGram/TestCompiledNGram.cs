@@ -242,5 +242,89 @@ namespace Editor.Tests.Tools.AI.NGramTests
                 new Dictionary<string, float>() { { "a", 0.5f }, { "b", 0.5f } },
                 ngram.Compile().GetValues(new string[] { "c" }));
         }
+
+        [Test]
+        public void TestSequenceProbability()
+        {
+            NGram gram = new NGram(3);
+            Assert.AreEqual(
+                0, 
+                gram.Compile().SequenceProbability(new string[] { "a", "a", "a" }));
+
+            gram.AddData(new string[] { "a", "a" }, "a");
+            Assert.AreEqual(
+                1,
+                gram.Compile().SequenceProbability(new string[] { "a", "a", "a" }));
+
+            Assert.AreEqual(
+                1,
+                gram.Compile().SequenceProbability(new string[] { "a", "a", "a", "a", "a" }));
+
+            Assert.AreEqual(
+                0,
+                gram.Compile().SequenceProbability(new string[] { "a", "a", "a", "a", "b" }));
+
+            gram.AddData(new string[] { "a", "a" }, "b");
+            double result = gram.Compile().SequenceProbability(new string[] { "a", "a", "a" });
+            Assert.IsTrue(
+                Mathf.Approximately(0.5f, (float) result),
+                $"Expected 0.5 but received {result}");
+
+            result = gram.Compile().SequenceProbability(new string[] { "a", "a", "a", "a", "a" });
+            Assert.IsTrue(
+                Mathf.Approximately(0.5f * 0.5f * 0.5f, (float)result),
+                $"Expected 0.125 but received {result}");
+
+            result = gram.Compile().SequenceProbability(new string[] { "a", "a", "a", "a", "b" });
+            Assert.IsTrue(
+                Mathf.Approximately(0.5f * 0.5f * 0.5f, (float)result),
+                $"Expected 0.125 but received {result}");
+
+            Assert.AreEqual(
+                0, 
+                gram.Compile().SequenceProbability(new string[] { "a", "a", "a", "b", "a" }));
+        }
+
+        [Test]
+        public void TestPerplexity()
+        {
+            NGram gram = new NGram(3);
+            Assert.AreEqual(
+                double.PositiveInfinity,
+                gram.Compile().Perplexity(new string[] { "a", "a", "a" }));
+
+            gram.AddData(new string[] { "a", "a" }, "a");
+            Assert.AreEqual(
+                1,
+                gram.Compile().Perplexity(new string[] { "a", "a", "a" }));
+
+            Assert.AreEqual(
+                1,
+                gram.Compile().Perplexity(new string[] { "a", "a", "a", "a", "a" }));
+
+            Assert.AreEqual(
+                double.PositiveInfinity,
+                gram.Compile().Perplexity(new string[] { "a", "a", "a", "a", "b" }));
+
+            gram.AddData(new string[] { "a", "a" }, "b");
+            double result = gram.Compile().Perplexity(new string[] { "a", "a", "a" });
+            Assert.IsTrue(
+                Mathf.Approximately(1 / 0.5f, (float)result),
+                $"Expected 1/0.5 but received {result}");
+
+            result = gram.Compile().Perplexity(new string[] { "a", "a", "a", "a", "a" });
+            Assert.IsTrue(
+                Mathf.Approximately(1 / (0.5f * 0.5f * 0.5f), (float)result),
+                $"Expected 1/0.125 but received {result}");
+
+            result = gram.Compile().Perplexity(new string[] { "a", "a", "a", "a", "b" });
+            Assert.IsTrue(
+                Mathf.Approximately(1 / (0.5f * 0.5f * 0.5f), (float)result),
+                $"Expected 1/0.125 but received {result}");
+
+            Assert.AreEqual(
+                double.PositiveInfinity,
+                gram.Compile().Perplexity(new string[] { "a", "a", "a", "b", "a" }));
+        }
     }
 }

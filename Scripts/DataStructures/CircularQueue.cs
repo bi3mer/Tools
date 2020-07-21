@@ -33,7 +33,7 @@ namespace Tools.DataStructures
         {
             if (Capacity > 0)
             { 
-                if (queue.Count == Capacity)
+                if (IsFull())
                 {
                     queue.Dequeue();
                 }
@@ -61,6 +61,11 @@ namespace Tools.DataStructures
             copy.AddRange(queue);
 
             return copy;
+        }
+
+        public bool IsFull()
+        {
+            return queue.Count == Capacity;
         }
     }
 }
