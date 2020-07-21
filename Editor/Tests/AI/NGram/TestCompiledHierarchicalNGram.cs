@@ -369,5 +369,26 @@ namespace Editor.Tests.Tools.AI.NGramTests
                 Mathf.Approximately(expectedValue, values["d"]),
                 $"Expected {expectedValue} but received {values["d"]}.");
         }
+
+        [Test]
+        public void TestSequenceProbability()
+        {
+            HierarchicalNGram gram = new HierarchicalNGram(3, 0.9f);
+            //Assert.AreEqual(
+            //    0, 
+            //    gram.Compile().SequenceProbability(new string[] { "a", "b", "c" }));
+
+            gram.AddData(new string[] { "a", "a" }, "b");
+            Assert.AreEqual(
+                (0.9 / 2.439)  + (0.81 / 2.439) * (0.5 * 0.5) + (0.729 / 2.439) * (2/3 * 2/3 * 1/3),
+                gram.Compile().SequenceProbability(new string[] { "a", "a", "b" }));
+
+        }
+
+        [Test]
+        public void TestPerplexity()
+        {
+            Assert.Fail();
+        }
     }
 }

@@ -174,7 +174,14 @@ namespace Tools.AI.NGram
 
         public double SequenceProbability(string[] inData)
         {
-            return 0;
+            double probability = 0;
+
+            for (int i = 0; i < CompiledGrammars.Length; ++i)
+            {
+                probability += Weights[i] * CompiledGrammars[i].SequenceProbability(inData);
+            }
+
+            return probability;
         }
     }
 }

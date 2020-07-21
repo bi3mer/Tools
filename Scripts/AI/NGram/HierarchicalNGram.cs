@@ -1,6 +1,5 @@
-﻿using UnityEngine.Assertions;
-using System.Linq;
-using System;
+﻿using System.Collections.Generic;
+using UnityEngine.Assertions;
 
 namespace Tools.AI.NGram
 {
@@ -30,15 +29,14 @@ namespace Tools.AI.NGram
         public void AddData(string[] inData, string outData)
         {
             Assert.IsTrue(inData.Length == N - 1);
+            List<string> data = new List<string>();
+            data.AddRange(inData);
+            data.Add(outData);
 
-            Grammars[0].AddData(null, outData);
-            for (int grammarSize = 1; grammarSize < Grammars.Length; ++grammarSize)
+            foreach (IGram gram in Grammars)
             {
-                ArraySegment<string> segment = new ArraySegment<string>(inData, N - grammarSize - 1, grammarSize);
-                Grammars[grammarSize].AddData(
-                    segment.ToArray(),
-                    outData);
-            }
+                NGramTrainer.Train(gram, data);
+            } 
         }
 
         public void AddGrammar(IGram gram)

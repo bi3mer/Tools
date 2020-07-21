@@ -61,34 +61,54 @@ namespace Editor.Tests.Tools.AI.NGramTests
             NGram n3 = a.Grammars[2] as NGram;
 
             a.AddData(new string[] { "a", "b" }, "c");
-            Assert.AreEqual(1, u1.Grammar.Keys.Count);
-            Assert.AreEqual(1, n2.Grammar.Keys.Count);
+            Assert.AreEqual(3, u1.Grammar.Keys.Count);
+            Assert.AreEqual(2, n2.Grammar.Keys.Count);
             Assert.AreEqual(1, n3.Grammar.Keys.Count);
 
+            Assert.AreEqual(1f, u1.Grammar["a"]);
+            Assert.AreEqual(1f, u1.Grammar["b"]);
             Assert.AreEqual(1f, u1.Grammar["c"]);
+
+            Assert.AreEqual(1f, n2.Grammar["a"].Grammar["b"]);
             Assert.AreEqual(1f, n2.Grammar["b"].Grammar["c"]);
+
             Assert.AreEqual(1f, n3.Grammar["a,b"].Grammar["c"]);
 
             a.AddData(new string[] { "a", "b" }, "c");
             a.AddData(new string[] { "c", "b" }, "c");
-            Assert.AreEqual(1, u1.Grammar.Keys.Count);
-            Assert.AreEqual(1, n2.Grammar.Keys.Count);
+            Assert.AreEqual(3, u1.Grammar.Keys.Count);
+            Assert.AreEqual(3, n2.Grammar.Keys.Count);
             Assert.AreEqual(2, n3.Grammar.Keys.Count);
 
-            Assert.AreEqual(3f, u1.Grammar["c"]);
+            Assert.AreEqual(2f, u1.Grammar["a"]);
+            Assert.AreEqual(3f, u1.Grammar["b"]);
+            Assert.AreEqual(4f, u1.Grammar["c"]);
+
+            Assert.AreEqual(2f, n2.Grammar["a"].Grammar["b"]);
             Assert.AreEqual(3f, n2.Grammar["b"].Grammar["c"]);
+            Assert.AreEqual(1f, n2.Grammar["c"].Grammar["b"]);
+
             Assert.AreEqual(2f, n3.Grammar["a,b"].Grammar["c"]);
             Assert.AreEqual(1f, n3.Grammar["c,b"].Grammar["c"]);
 
+            // a, b, c, d
+            // ab, bc, cb, bd
+            // abc, cbc, abd
             a.AddData(new string[] { "a", "b" }, "d");
-            Assert.AreEqual(2, u1.Grammar.Keys.Count);
-            Assert.AreEqual(1, n2.Grammar.Keys.Count);
+            Assert.AreEqual(4, u1.Grammar.Keys.Count);
+            Assert.AreEqual(3, n2.Grammar.Keys.Count);
             Assert.AreEqual(2, n3.Grammar.Keys.Count);
 
-            Assert.AreEqual(3f, u1.Grammar["c"]);
+            Assert.AreEqual(3f, u1.Grammar["a"]);
+            Assert.AreEqual(4f, u1.Grammar["b"]);
+            Assert.AreEqual(4f, u1.Grammar["c"]);
             Assert.AreEqual(1f, u1.Grammar["d"]);
-            Assert.AreEqual(1f, n2.Grammar["b"].Grammar["d"]);
+
+            Assert.AreEqual(3f, n2.Grammar["a"].Grammar["b"]);
             Assert.AreEqual(3f, n2.Grammar["b"].Grammar["c"]);
+            Assert.AreEqual(1f, n2.Grammar["b"].Grammar["d"]);
+            Assert.AreEqual(1f, n2.Grammar["c"].Grammar["b"]);
+
             Assert.AreEqual(2f, n3.Grammar["a,b"].Grammar["c"]);
             Assert.AreEqual(1f, n3.Grammar["a,b"].Grammar["d"]);
             Assert.AreEqual(1f, n3.Grammar["c,b"].Grammar["c"]);
@@ -104,21 +124,31 @@ namespace Editor.Tests.Tools.AI.NGramTests
 
             a.AddData(new string[] { "a", "b" }, "c");
             a.UpdateMemory(0.9f);
-            Assert.AreEqual(1, u1.Grammar.Keys.Count);
-            Assert.AreEqual(1, n2.Grammar.Keys.Count);
+            Assert.AreEqual(3, u1.Grammar.Keys.Count);
+            Assert.AreEqual(2, n2.Grammar.Keys.Count);
             Assert.AreEqual(1, n3.Grammar.Keys.Count);
 
+            Assert.AreEqual(0.9f, u1.Grammar["a"]);
+            Assert.AreEqual(0.9f, u1.Grammar["b"]);
             Assert.AreEqual(0.9f, u1.Grammar["c"]);
+
+            Assert.AreEqual(0.9f, n2.Grammar["a"].Grammar["b"]);
             Assert.AreEqual(0.9f, n2.Grammar["b"].Grammar["c"]);
+            
             Assert.AreEqual(0.9f, n3.Grammar["a,b"].Grammar["c"]);
 
             a.UpdateMemory(0.9f);
-            Assert.AreEqual(1, u1.Grammar.Keys.Count);
-            Assert.AreEqual(1, n2.Grammar.Keys.Count);
+            Assert.AreEqual(3, u1.Grammar.Keys.Count);
+            Assert.AreEqual(2, n2.Grammar.Keys.Count);
             Assert.AreEqual(1, n3.Grammar.Keys.Count);
 
+            Assert.IsTrue(Mathf.Approximately(0.81f, u1.Grammar["a"]));
+            Assert.IsTrue(Mathf.Approximately(0.81f, u1.Grammar["b"]));
             Assert.IsTrue(Mathf.Approximately(0.81f, u1.Grammar["c"]));
+
+            Assert.IsTrue(Mathf.Approximately(0.81f, n2.Grammar["a"].Grammar["b"]));
             Assert.IsTrue(Mathf.Approximately(0.81f, n2.Grammar["b"].Grammar["c"]));
+
             Assert.IsTrue(Mathf.Approximately(0.81f, n3.Grammar["a,b"].Grammar["c"]));
         }
 
@@ -186,14 +216,22 @@ namespace Editor.Tests.Tools.AI.NGramTests
 
             a.AddGrammar(b);
 
-            Assert.AreEqual(2, u1.Grammar.Count);
-            Assert.AreEqual(4f, u1.Grammar["c"]);
+            // a, b, c, d
+            Assert.AreEqual(4, u1.Grammar.Keys.Count);
+            Assert.AreEqual(3f, u1.Grammar["a"]);
+            Assert.AreEqual(6f, u1.Grammar["b"]);
+            Assert.AreEqual(5f, u1.Grammar["c"]);
             Assert.AreEqual(1f, u1.Grammar["d"]);
 
-            Assert.AreEqual(1, n2.Grammar.Count);
+            // ab, bc, cb, bc, bb, bd
+            Assert.AreEqual(3, n2.Grammar.Count);
+            Assert.AreEqual(3f, n2.Grammar["a"].Grammar["b"]);
             Assert.AreEqual(4f, n2.Grammar["b"].Grammar["c"]);
+            Assert.AreEqual(1f, n2.Grammar["c"].Grammar["b"]);
+            Assert.AreEqual(1f, n2.Grammar["b"].Grammar["b"]);
             Assert.AreEqual(1f, n2.Grammar["b"].Grammar["d"]);
 
+            // abc, cbd, bbd
             Assert.AreEqual(3f, n3.Grammar.Count);
             Assert.AreEqual(3f, n3.Grammar["a,b"].Grammar["c"]);
             Assert.AreEqual(1f, n3.Grammar["c,b"].Grammar["c"]);
