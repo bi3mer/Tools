@@ -145,5 +145,74 @@ namespace Editor.Tests.Tools.AI.NGramTests
                 new Dictionary<string, float>() { { "a", 0.75f }, { "b", 0.25f } },
                 unigram.Compile().GetValues(null));
         }
+
+        [Test]
+        public void TestSequenceProbability()
+        {
+            UniGram unigram = new UniGram();
+            Assert.AreEqual(
+                0, 
+                unigram.Compile().SequenceProbability(new string[] { "a", "b" }));
+
+            unigram.AddData(null, "a");
+            Assert.AreEqual(
+                1, 
+                unigram.Compile().SequenceProbability(new string[] { "a", "a" }));
+
+            unigram.AddData(null, "b");
+            Assert.AreEqual(
+                0.5,
+                unigram.Compile().SequenceProbability(new string[] { "a" }));
+
+            Assert.AreEqual(
+                0.25,
+                unigram.Compile().SequenceProbability(new string[] { "b", "b" }));
+
+            unigram.AddData(null, "b");
+            unigram.AddData(null, "b");
+
+            Assert.AreEqual(
+                0.75,
+                unigram.Compile().SequenceProbability(new string[] { "b" }));
+
+            Assert.AreEqual(
+                0.75 * 0.25 * 0.75,
+                unigram.Compile().SequenceProbability(new string[] { "b", "a", "b" }));
+
+        }
+
+        [Test]
+        public void TestPerplexity()
+        {
+            UniGram unigram = new UniGram();
+            Assert.AreEqual(
+                double.PositiveInfinity,
+                unigram.Compile().Perplexity(new string[] { "a", "b" }));
+
+            unigram.AddData(null, "a");
+            Assert.AreEqual(
+                1,
+                unigram.Compile().Perplexity(new string[] { "a", "a" }));
+
+            unigram.AddData(null, "b");
+            Assert.AreEqual(
+                1 / 0.5,
+                unigram.Compile().Perplexity(new string[] { "a" }));
+
+            Assert.AreEqual(
+                1 / 0.25,
+                unigram.Compile().Perplexity(new string[] { "b", "b" }));
+
+            unigram.AddData(null, "b");
+            unigram.AddData(null, "b");
+
+            Assert.AreEqual(
+                1 / 0.75,
+                unigram.Compile().Perplexity(new string[] { "b" }));
+
+            Assert.AreEqual(
+                1 / (0.75 * 0.25 * 0.75),
+                unigram.Compile().Perplexity(new string[] { "b", "a", "b" }));
+        }
     }
 }

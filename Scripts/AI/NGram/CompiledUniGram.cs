@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Tools.Utility;
+using UnityEditor.UI;
 
 namespace Tools.AI.NGram
 {
@@ -96,12 +97,33 @@ namespace Tools.AI.NGram
 
         public double Perplexity(string[] inData)
         {
-            return 0;
+            double denominator = SequenceProbability(inData);
+
+            if (denominator == 0)
+            {
+                return double.PositiveInfinity;
+            }
+
+            return 1 / denominator;
         }
 
         public double SequenceProbability(string[] inData)
         {
-            return 0;
+            double probability = 1;
+            foreach (string token in inData)
+            {
+                if (grammar.ContainsKey(token))
+                {
+                    probability *= grammar[token];
+                }
+                else
+                {
+                    probability = 0;
+                    break;
+                }
+            }
+
+            return probability;
         }
     }
 }
