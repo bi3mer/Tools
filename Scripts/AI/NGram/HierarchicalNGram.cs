@@ -58,7 +58,7 @@ namespace Tools.AI.NGram
             }
         }
 
-        public ICompiledGram Compile()
+        public virtual ICompiledGram Compile()
         {
             return new CompiledHierarchicalNGram(this);
         }

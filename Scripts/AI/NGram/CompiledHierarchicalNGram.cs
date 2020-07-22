@@ -82,7 +82,7 @@ namespace Tools.AI.NGram
 
         public bool HasNextStep(string[] inData)
         {
-            return GetCompiledUniGram(inData).HasNextStep(null);
+            return CompiledGrammars[0].HasNextStep(null);
         }
 
         public Dictionary<string, float> GetValues(string[] inData)
