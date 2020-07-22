@@ -166,7 +166,8 @@ namespace Editor.Tests.Tools.AI.NGramTests
             bool found = false;
             for (int i = 0; i < iterations; ++i)
             {
-                if (compiledGram.Get(input) == expected)
+                string temp = compiledGram.Get(input);
+                if (temp.Equals(expected))
                 {
                     found = true;
                     break;

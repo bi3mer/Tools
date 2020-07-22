@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using Tools.Utility;
-using UnityEditor.UI;
 
 namespace Tools.AI.NGram
 {
