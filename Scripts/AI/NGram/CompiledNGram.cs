@@ -57,7 +57,10 @@ namespace Tools.AI.NGram
             Assert.AreEqual(n - 1, inData.Length);
 
             string key = ConvertToKey(inData);
-            Assert.IsTrue(grammar.ContainsKey(key));
+            if (grammar.ContainsKey(key) == false)
+            {
+                return new string[] { };
+            }
 
             return grammar[key].GetGuesses(null);
         }

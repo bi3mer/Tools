@@ -187,21 +187,21 @@ namespace Editor.Tests.Tools.AI.NGramTests
 
             ICompiledGram compiledGram = gram.Compile();
 
-            Assert.IsTrue(FoundValue(compiledGram, "c", new string[] { "b", "a" }, 1000));
-            Assert.IsTrue(FoundValue(compiledGram, "d", new string[] { "b", "a" }, 1000));
-            Assert.IsTrue(FoundValue(compiledGram, "a", new string[] { "b", "a" }, 1000));
+            Assert.IsTrue(FoundValue(compiledGram,  "a", new string[] { "b", "a" }, 1000));
+            Assert.IsTrue(FoundValue(compiledGram,  "c", new string[] { "b", "a" }, 1000));
+            Assert.IsFalse(FoundValue(compiledGram, "d", new string[] { "b", "a" }, 10000));
 
-            Assert.IsTrue(FoundValue(compiledGram, "c", new string[] { "b", "c" }, 1000));
-            Assert.IsTrue(FoundValue(compiledGram, "d", new string[] { "b", "c" }, 1000));
-            Assert.IsTrue(FoundValue(compiledGram, "a", new string[] { "b", "c" }, 1000));
+            Assert.IsFalse(FoundValue(compiledGram, "a", new string[] { "b", "c" }, 10000));
+            Assert.IsTrue(FoundValue(compiledGram, "c", new string[]  { "b", "c" }, 1000));
+            Assert.IsFalse(FoundValue(compiledGram, "d", new string[] { "b", "c" }, 10000));
 
-            Assert.IsTrue(FoundValue(compiledGram, "c", new string[] { "a", "a" }, 1000));
-            Assert.IsTrue(FoundValue(compiledGram, "d", new string[] { "a", "a" }, 1000));
-            Assert.IsTrue(FoundValue(compiledGram, "a", new string[] { "a", "a" }, 1000));
+            Assert.IsFalse(FoundValue(compiledGram, "a", new string[] { "a", "a" }, 10000));
+            Assert.IsFalse(FoundValue(compiledGram, "c", new string[] { "a", "a" }, 10000));
+            Assert.IsTrue(FoundValue(compiledGram,  "d", new string[] { "a", "a" }, 1000));
 
+            Assert.IsTrue(FoundValue(compiledGram, "a", new string[] { "z", "d" }, 1000));
             Assert.IsTrue(FoundValue(compiledGram, "c", new string[] { "z", "d" }, 1000));
             Assert.IsTrue(FoundValue(compiledGram, "d", new string[] { "z", "d" }, 1000));
-            Assert.IsTrue(FoundValue(compiledGram, "a", new string[] { "z", "d" }, 1000));
 
             Assert.Throws<UnityEngine.Assertions.AssertionException>(() =>
             {
@@ -223,27 +223,57 @@ namespace Editor.Tests.Tools.AI.NGramTests
         public void TestGetGuesses()
         {
             BackOffNGram gram = new BackOffNGram(3, 0.6f);
+            gram.AddData(new string[] { "b", "a" }, "a");
             gram.AddData(new string[] { "b", "a" }, "c");
             gram.AddData(new string[] { "b", "c" }, "c");
-            gram.AddData(new string[] { "b", "a" }, "a");
             gram.AddData(new string[] { "a", "a" }, "d");
 
             ICompiledGram compiledGram = gram.Compile();
 
             string[] guesses = compiledGram.GetGuesses(new string[] { "b", "a" });
-            Assert.IsTrue(guesses.Contains("c"));
+            Assert.AreEqual(4, guesses.Length);
             Assert.IsTrue(guesses.Contains("a"));
+            Assert.IsTrue(guesses.Contains("b"));
+            Assert.IsTrue(guesses.Contains("c"));
             Assert.IsTrue(guesses.Contains("d"));
+
+            Assert.IsTrue(guesses[0] == "a" || guesses[0] == "c");
+            Assert.IsTrue(guesses[1] == "a" || guesses[1] == "c");
+            Assert.AreNotEqual(guesses[0], guesses[1]);
+
+            Assert.IsTrue(guesses[2] == "b" || guesses[2] == "d");
+            Assert.IsTrue(guesses[3] == "b" || guesses[3] == "d");
+            Assert.AreNotEqual(guesses[2], guesses[3]);
 
             guesses = compiledGram.GetGuesses(new string[] { "b", "c" });
-            Assert.IsTrue(guesses.Contains("c"));
+            Assert.AreEqual(4, guesses.Length);
             Assert.IsTrue(guesses.Contains("a"));
+            Assert.IsTrue(guesses.Contains("b"));
+            Assert.IsTrue(guesses.Contains("c"));
             Assert.IsTrue(guesses.Contains("d"));
 
-            compiledGram.GetGuesses(new string[] { "a", "a" });
-            Assert.IsTrue(guesses.Contains("c"));
+            Assert.AreEqual("c", guesses[0]);
+
+            Assert.IsTrue(guesses[1] == "a" || guesses[1] == "b" || guesses[1] == "d");
+            Assert.IsTrue(guesses[2] == "a" || guesses[2] == "b" || guesses[2] == "d");
+            Assert.IsTrue(guesses[3] == "a" || guesses[3] == "b" || guesses[3] == "d");
+            Assert.AreNotEqual(guesses[1], guesses[2]);
+            Assert.AreNotEqual(guesses[2], guesses[3]);
+
+            guesses = compiledGram.GetGuesses(new string[] { "a", "a" });
+            Assert.AreEqual(4, guesses.Length);
             Assert.IsTrue(guesses.Contains("a"));
+            Assert.IsTrue(guesses.Contains("b"));
+            Assert.IsTrue(guesses.Contains("c"));
             Assert.IsTrue(guesses.Contains("d"));
+
+            Assert.AreEqual("d", guesses[0]);
+
+            Assert.IsTrue(guesses[1] == "a" || guesses[1] == "b" || guesses[1] == "c");
+            Assert.IsTrue(guesses[2] == "a" || guesses[2] == "b" || guesses[2] == "c");
+            Assert.IsTrue(guesses[3] == "a" || guesses[3] == "b" || guesses[3] == "c");
+            Assert.AreNotEqual(guesses[1], guesses[2]);
+            Assert.AreNotEqual(guesses[2], guesses[3]);
         }
 
         [Test]

@@ -151,10 +151,9 @@ namespace Editor.Tests.Tools.AI.NGramTests
                 compiledGram.GetGuesses(new string[] { "b", "c", "d" });
             });
 
-            Assert.Throws<UnityEngine.Assertions.AssertionException>(() =>
-            {
-                compiledGram.GetGuesses(new string[] { "b", "c" });
-            });
+            string[] res = compiledGram.GetGuesses(new string[] { "b", "c" });
+            Assert.IsNotNull(res);
+            Assert.AreEqual(0, res.Length);
 
             ngram.AddData(new string[] { "a", "b" }, "c");
             string[] guesses = ngram.Compile().GetGuesses(new string[] { "a", "b" });
@@ -214,20 +213,18 @@ namespace Editor.Tests.Tools.AI.NGramTests
                 ngram.Compile().GetGuesses(new string[] { "a", "b" });
             });
 
-            Assert.Throws<UnityEngine.Assertions.AssertionException>(() =>
-            {
-                ngram.Compile().GetGuesses(new string[] { "a" });
-            });
+            string[] result = ngram.Compile().GetGuesses(new string[] { "a" });
+            Assert.IsNotNull(result);
+            Assert.AreEqual(0, result.Length);
 
             ngram.AddData(new string[] { "a" }, "b");
             Assert.AreEqual(
                 new Dictionary<string, float>() { { "b", 1f } },
                 ngram.Compile().GetValues(new string[] { "a" }));
 
-            Assert.Throws<UnityEngine.Assertions.AssertionException>(() =>
-            {
-                ngram.Compile().GetGuesses(new string[] { "b" });
-            });
+            result = ngram.Compile().GetGuesses(new string[] { "b" });
+            Assert.IsNotNull(result);
+            Assert.AreEqual(0, result.Length);
 
             ngram.AddData(new string[] { "a" }, "b");
             ngram.AddData(new string[] { "a" }, "b");

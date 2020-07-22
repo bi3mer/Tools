@@ -4,7 +4,6 @@ using System.Linq;
 using System;
 
 using Tools.DataStructures;
-using System.Diagnostics;
 
 namespace Tools.AI.NGram
 {
@@ -69,12 +68,51 @@ namespace Tools.AI.NGram
 
         public string Get(string[] inData)
         {
-            return GetCompiledUniGram(inData, n).Get(null);
+            Assert.IsNotNull(inData);
+            Assert.AreEqual(n - 1, inData.Length);
+
+            int length = inData.Length;
+
+            for (int i = CompiledGrammars.Length - 1; i >= 0; --i)
+            {
+                ICompiledGram gram = CompiledGrammars[i];
+                int n = gram.GetN() - 1;
+
+                ArraySegment<string> segment = new ArraySegment<string>(inData, length - n, n);
+                string[] grammarGuesses = gram.GetGuesses(segment.ToArray());
+                if (grammarGuesses.Length > 0)
+                {
+                    return grammarGuesses[0];
+                }
+            }
+
+            return null;
         }
 
         public string[] GetGuesses(string[] inData)
         {
-            return GetCompiledUniGram(inData, n).GetGuesses(null);
+            HashSet<string> seenGuesses = new HashSet<string>();
+            List<string> guesses = new List<string>();
+            int length = inData.Length;
+
+            for (int i = CompiledGrammars.Length - 1; i >= 0; --i)
+            {
+                ICompiledGram gram = CompiledGrammars[i];
+                int n = gram.GetN() - 1;
+
+                ArraySegment<string> segment = new ArraySegment<string>(inData, length - n, n);
+                string[] grammarGuesses = gram.GetGuesses(segment.ToArray());
+                foreach (string guess in grammarGuesses)
+                {
+                    if (seenGuesses.Contains(guess) == false)
+                    {
+                        seenGuesses.Add(guess);
+                        guesses.Add(guess);
+                    }
+                }
+            }
+
+            return guesses.ToArray();
         }
 
         public int GetN()

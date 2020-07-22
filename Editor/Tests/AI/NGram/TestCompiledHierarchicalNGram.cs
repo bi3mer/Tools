@@ -231,18 +231,18 @@ namespace Editor.Tests.Tools.AI.NGramTests
             ICompiledGram compiledGram = gram.Compile();
 
             string[] guesses = compiledGram.GetGuesses(new string[] { "b", "a" });
-            Assert.IsTrue(guesses.Contains("c"));
             Assert.IsTrue(guesses.Contains("a"));
+            Assert.IsTrue(guesses.Contains("c"));
             Assert.IsTrue(guesses.Contains("d"));
 
             guesses = compiledGram.GetGuesses(new string[] { "b", "c" });
-            Assert.IsTrue(guesses.Contains("c"));
             Assert.IsTrue(guesses.Contains("a"));
+            Assert.IsTrue(guesses.Contains("c"));
             Assert.IsTrue(guesses.Contains("d"));
 
-            compiledGram.GetGuesses(new string[] { "a", "a" });
-            Assert.IsTrue(guesses.Contains("c"));
+            guesses = compiledGram.GetGuesses(new string[] { "a", "a" });
             Assert.IsTrue(guesses.Contains("a"));
+            Assert.IsTrue(guesses.Contains("c"));
             Assert.IsTrue(guesses.Contains("d"));
         }
 
