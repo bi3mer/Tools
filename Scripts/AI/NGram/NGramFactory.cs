@@ -37,5 +37,22 @@ namespace Tools.AI.NGram
 
             return gram;
         }
+
+        public static IGram InitBackOffNGram(int n, float weightMultiplier)
+        {
+            Assert.IsTrue(n >= 1);
+
+            IGram gram;
+            if (n == 1)
+            {
+                gram = new UniGram();
+            }
+            else
+            {
+                gram = new BackOffNGram(n, weightMultiplier);
+            }
+
+            return gram;
+        }
     }
 }
