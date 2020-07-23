@@ -96,6 +96,114 @@ namespace Tools.AI.NGram
             return outputLevel;
         }
 
+        // @NOTE: this is used for simulation. Do not use outside of it.
+        public static List<string> GenerateBestAttempt(
+            ICompiledGram gram,
+            List<string> start,
+            int size, 
+            int maxAttempts)
+        {
+            List<string> best = null;
+
+            for (int i = 0; i < maxAttempts; ++i)
+            { 
+                CircularQueue<string> prior = new CircularQueue<string>(gram.GetN() - 1);
+                prior.AddRange(start);
+
+                List<string> output = new List<string>();
+                while (size > 0 && gram.HasNextStep(prior.ToArray()))
+                {
+                    string nextToken = gram.Get(prior.ToArray());
+                    output.Add(nextToken);
+                    prior.Add(nextToken);
+                    --size;
+                }
+
+                if (size == 0)
+                {
+                    best = output;
+                    break;
+                }
+
+                if (best == null)
+                {
+                    best = output;
+                }
+                else if (output.Count > best.Count)
+                {
+                    best = output;
+                }
+            }
+
+            return best;
+        }
+
+        // @NOTE: this is used for simulation. Do not use outside of it.
+        public static List<string> GenerateBestRestrictedAttempt(
+            ICompiledGram gram,
+            List<string> start,
+            List<string> acceptedTypes,
+            Func<string, string> classifier,
+            int maxAttempts)
+        {
+            List<string> best = null;
+
+            for (int attempt = 0; attempt < maxAttempts; ++attempt)
+            {
+                CircularQueue<string> prior = new CircularQueue<string>(gram.GetN() - 1);
+                prior.AddRange(start);
+
+                int acceptedTypeIndex = 0;
+                List<string> output = new List<string>();
+                string token;
+                int i;
+
+                while (acceptedTypeIndex < acceptedTypes.Count && gram.HasNextStep(prior.ToArray()))
+                {
+                    string[] tokens = gram.GetGuesses(prior.ToArray());
+                    string nextToken = null;
+
+                    string acceptedType = acceptedTypes[acceptedTypeIndex];
+                    for(i = 0; i < tokens.Length; ++i)
+                    {
+                        token = tokens[i];
+                        if (classifier.Invoke(token).Equals(acceptedType))
+                        {
+                            nextToken = token;
+                        }
+                    }
+
+                    if (nextToken != null)
+                    {
+                        output.Add(nextToken);
+                        prior.Add(nextToken);
+                        acceptedTypeIndex += 1;
+                    }
+                    else 
+                    {
+                        break;
+                    }
+                }
+
+                if (output.Count == acceptedTypes.Count)
+                {
+                    best = output;
+                    break;
+                }
+
+                if (best == null)
+                {
+                    best = output;
+                }
+                else if (output.Count > best.Count)
+                {
+                    best = output;
+                }
+            }
+
+            return best;
+        }
+
         private static List<string> GenerateTree(
             ICompiledGram gram, 
             CircularQueue<string> prior, 

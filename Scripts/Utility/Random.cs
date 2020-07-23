@@ -1,12 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System;
 
 namespace Tools.Utility
 {
     public static class UtilityRandom
     {
-        private static readonly Random random = new Random();
+        private static Random random = new Random();
         public static Random Random { get { return random; } }
+
+        /// <summary>
+        /// Useful for threaded scenarios where Random will likely generate the
+        /// same sequence over and over again
+        /// </summary>
+        /// <param name="seed"></param>
+        public static void SetSeed(int seed)
+        {
+            random = new Random(seed);
+        }
 
         /// <summary>
         /// Get a arandom number between min andm ax where max is exclosuive
