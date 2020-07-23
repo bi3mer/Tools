@@ -36,31 +36,34 @@ namespace Tools.Utility
 
         /// <summary>
         /// Values in dictionary must add up to 1 for this function to work as expected.
+        /// Also note that dictionaries ordering is non-deterministic and we take 
+        /// advantage of this fact by not building a random order ourselves.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="valueToLikelihood"></param>
         /// <param name="keys"></param>
         /// <returns></returns>
-        public static T WeightedGuess<T>(Dictionary<T, float> valueToLikelihood, List<T> keys = null)
+        public static T WeightedGuess<T>(Dictionary<T, float> valueToLikelihood)
         {
-            if (keys == null)
-            { 
-                keys = new List<T>(valueToLikelihood.Keys);
-            }
-
-            keys.Shuffle();
             float minVal = UtilityRandom.RandFloat(0f, 1f);
             float total = 0;
-            T outVal = keys[keys.Count - 1];
+            bool hasBeenSet = false;
+            T outVal = default;
 
-            foreach (T key in keys)
+            foreach (T key in valueToLikelihood.Keys)
             {
                 total += valueToLikelihood[key];
 
                 if (total >= minVal)
                 {
                     outVal = key;
+                    hasBeenSet = true;
                     break;
+                }
+                else if (hasBeenSet == false)
+                {
+                    outVal = key;
+                    hasBeenSet = true;
                 }
             }
 

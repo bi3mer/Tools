@@ -47,7 +47,7 @@ namespace Tools.AI.NGram
         /// <returns></returns>
         public string Get(string[] inData)
         {
-            return Math.WeightedGuess(grammar, keys);
+            return Math.WeightedGuess(grammar);
         }
 
         public string[] GetGuesses(string[] inData)
